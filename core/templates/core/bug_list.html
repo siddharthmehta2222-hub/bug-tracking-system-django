@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bug List</title>
+</head>
+
+<body>
+
+<h2>All Bugs</h2>
+
+<table border="1">
+<tr>
+    <th>Title</th>
+    <th>Project</th>
+    <th>Priority</th>
+    <th>Status</th>
+    <th>Assigned To</th>
+</tr>
+
+{% for bug in bugs %}
+<tr>
+    <td>{{ bug.title }}</td>
+    <td>{{ bug.project }}</td>
+    <td>{{ bug.priority }}</td>
+    <td>{{ bug.status }}</td>
+    <td>{{ bug.assigned_to }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

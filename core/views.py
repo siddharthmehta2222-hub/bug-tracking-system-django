@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from .forms import UserSignupForm
+from .models import Bug
+from .forms import BugForm, UserSignupForm
 from django.contrib.auth import authenticate, login
 
 
@@ -34,3 +35,20 @@ def loginView(request):
 
 def dashboardView(request):
     return render(request, "core/dashboard.html")
+
+def add_bug(request):
+    if request.method == 'POST':
+        form = BugForm(request.POST)
+        if form.is_valid():
+            bug = form.save(commit=False)
+            bug.reported_by = request.user
+            bug.save()
+            return redirect('dashboard')
+    else:
+        form = BugForm()
+
+    return render(request, 'core/add_bug.html', {'form': form})
+
+def bug_list(request):
+    bugs = Bug.objects.all()
+    return render(request, 'core/bug_list.html', {'bugs': bugs})

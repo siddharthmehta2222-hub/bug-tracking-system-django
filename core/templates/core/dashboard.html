@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 
 <html>
@@ -57,7 +58,7 @@ margin-right:20px;
 
 <h2>BugTracker</h2>
 
-<a href="#">Dashboard</a> <a href="#">Projects</a> <a href="#">Bugs</a> <a href="#">Users</a>
+<a href="#">Dashboard</a> <a href="#">Projects</a> <a href="{% url 'bug_list' %}">Bugs</a> <a href="#">Users</a>
 
 </div>
 
