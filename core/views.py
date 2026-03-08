@@ -52,3 +52,6 @@ def add_bug(request):
 def bug_list(request):
     bugs = Bug.objects.all()
     return render(request, 'core/bug_list.html', {'bugs': bugs})
+
+def home(request):
+    return render(request, 'core/home.html')
