@@ -16,4 +16,8 @@ urlpatterns = [
 
     path('bugs/', views.bug_list, name='bug_list'),
 
+    path('start/<int:id>/', views.start_bug, name='start_bug'),
+
+    path('close/<int:id>/', views.close_bug, name='close_bug'),
+
 ]
