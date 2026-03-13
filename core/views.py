@@ -69,6 +69,31 @@ def dashboardView(request):
 
     return render(request, "core/dashboard.html", context)
 
+# START BUG
+
+def start_bug(request,id):
+
+    bug = Bug.objects.get(id=id)
+
+    bug.status = "in_progress"
+
+    bug.save()
+
+    return redirect('dashboard')
+
+
+# CLOSE BUG
+
+def close_bug(request,id):
+
+    bug = Bug.objects.get(id=id)
+
+    bug.status = "closed"
+
+    bug.save()
+
+    return redirect('dashboard')
+
 
 # ADD BUG
 
@@ -105,4 +130,18 @@ def bug_list(request):
 
 def home(request):
 
-    return render(request, 'core/home.html')
+    total_bugs = Bug.objects.count()
+
+    open_bugs = Bug.objects.filter(status='open').count()
+
+    closed_bugs = Bug.objects.filter(status='closed').count()
+
+    context = {
+
+        'total_bugs': total_bugs,
+        'open_bugs': open_bugs,
+        'closed_bugs': closed_bugs
+
+    }
+
+    return render(request, 'core/home.html', context)
