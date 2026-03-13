@@ -1,51 +1,209 @@
 {% load static %}
+
 <!DOCTYPE html>
 
 <html>
+
 <head>
-<title>Dashboard</title>
+
+<title>BugTracker Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 
+/* GLOBAL */
+
 body{
-font-family: Arial;
 margin:0;
-background:#f4f6f9;
+font-family:"Segoe UI",sans-serif;
+background:linear-gradient(135deg,#1e293b,#0f172a);
+color:white;
 }
 
+/* SIDEBAR */
+
 .sidebar{
-width:220px;
+width:230px;
 height:100vh;
-background:#1e293b;
-color:white;
 position:fixed;
-padding:20px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+padding:25px;
+border-right:1px solid rgba(255,255,255,0.1);
 }
 
 .sidebar h2{
 color:#38bdf8;
+margin-bottom:30px;
 }
 
 .sidebar a{
 display:block;
-color:white;
 text-decoration:none;
-margin:15px 0;
+color:white;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+transition:0.3s;
 }
 
+.sidebar a:hover{
+background:#38bdf8;
+}
+
+/* MAIN */
+
 .main{
-margin-left:240px;
-padding:30px;
+margin-left:250px;
+padding:40px;
+}
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+.header h1{
+margin:0;
+}
+
+/* BUTTON */
+
+.btn{
+background:#3b82f6;
+padding:8px 14px;
+border-radius:6px;
+text-decoration:none;
+color:white;
+font-size:13px;
+font-weight:500;
+transition:0.3s;
+}
+
+.btn:hover{
+background:#2563eb;
+}
+
+/* STAT CARDS */
+
+.cards{
+display:flex;
+flex-wrap:wrap;
+gap:20px;
 }
 
 .card{
-background:white;
+flex:1;
+min-width:200px;
+background:rgba(255,255,255,0.05);
+padding:25px;
+border-radius:12px;
+backdrop-filter:blur(10px);
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-6px);
+}
+
+.card h3{
+margin:0;
+font-size:16px;
+color:#94a3b8;
+}
+
+.card p{
+font-size:36px;
+margin-top:10px;
+font-weight:bold;
+}
+
+/* BUG BOARD */
+
+.board{
+margin-top:40px;
+display:flex;
+gap:25px;
+flex-wrap:wrap;
+}
+
+.column{
+flex:1;
+min-width:250px;
+background:rgba(255,255,255,0.05);
 padding:20px;
+border-radius:12px;
+}
+
+.column h2{
+font-size:18px;
+margin-bottom:15px;
+}
+
+/* BUG CARD */
+
+.bug{
+background:#1e293b;
+padding:14px;
+margin-bottom:12px;
 border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
-width:200px;
+font-size:14px;
+transition:0.3s;
+border-left:4px solid #3b82f6;
+}
+
+.bug:hover{
+background:#334155;
+transform:scale(1.02);
+}
+
+/* PRIORITY BADGES */
+
+.priority{
 display:inline-block;
-margin-right:20px;
+padding:4px 10px;
+border-radius:20px;
+font-size:11px;
+font-weight:bold;
+margin-top:6px;
+text-transform:uppercase;
+}
+
+.priority.low{
+background:#22c55e;
+}
+
+.priority.medium{
+background:#f59e0b;
+}
+
+.priority.high{
+background:#ef4444;
+}
+
+.priority.critical{
+background:#a855f7;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+.sidebar{
+width:180px;
+}
+
+.main{
+margin-left:200px;
+padding:20px;
+}
+
 }
 
 </style>
@@ -54,31 +212,140 @@ margin-right:20px;
 
 <body>
 
+<!-- SIDEBAR -->
+
 <div class="sidebar">
 
 <h2>BugTracker</h2>
 
-<a href="#">Dashboard</a> <a href="#">Projects</a> <a href="{% url 'bug_list' %}">Bugs</a> <a href="#">Users</a>
+<a href="{% url 'dashboard' %}">Dashboard</a> <a href="#">Projects</a> <a href="{% url 'bug_list' %}">Bugs</a> <a href="{% url 'add_bug' %}">Report Bug</a>
 
 </div>
+
+<!-- MAIN CONTENT -->
 
 <div class="main">
 
+<!-- HEADER -->
+
+<div class="header">
+
 <h1>Dashboard</h1>
+
+<a href="{% url 'add_bug' %}" class="btn">+ Report Bug</a>
+
+</div>
+
+<!-- STATISTICS -->
+
+<div class="cards">
 
 <div class="card">
 <h3>Total Bugs</h3>
-<p>15</p>
+<p>{{ total_bugs }}</p>
 </div>
 
 <div class="card">
-<h3>Open Bugs</h3>
-<p>7</p>
+<h3>Open</h3>
+<p>{{ open_bugs }}</p>
 </div>
 
 <div class="card">
-<h3>Closed Bugs</h3>
-<p>8</p>
+<h3>In Progress</h3>
+<p>{{ progress_bugs }}</p>
+</div>
+
+<div class="card">
+<h3>Closed</h3>
+<p>{{ closed_bugs }}</p>
+</div>
+
+</div>
+
+<!-- BUG WORKFLOW BOARD -->
+
+<div class="board">
+
+<!-- OPEN BUGS -->
+
+<div class="column">
+
+<h2>Open Bugs</h2>
+
+{% for bug in open_bug_list %}
+
+<div class="bug">
+
+<b>{{ bug.title }}</b><br>
+
+<span class="priority {{ bug.priority }}">
+{{ bug.priority }}
+</span>
+
+<br><br>
+
+<a href="/start/{{ bug.id }}" class="btn">Start Work</a>
+
+</div>
+
+{% empty %}
+
+<p>No bugs</p>
+
+{% endfor %}
+
+</div>
+
+<!-- IN PROGRESS -->
+
+<div class="column">
+
+<h2>In Progress</h2>
+
+{% for bug in progress_bug_list %}
+
+<div class="bug">
+
+<b>{{ bug.title }}</b><br>
+
+Assigned: {{ bug.assigned_to }}
+
+<br><br>
+
+<a href="/close/{{ bug.id }}" class="btn">Close Bug</a>
+
+</div>
+
+{% empty %}
+
+<p>No bugs</p>
+
+{% endfor %}
+
+</div>
+
+<!-- CLOSED BUGS -->
+
+<div class="column">
+
+<h2>Closed</h2>
+
+{% for bug in closed_bug_list %}
+
+<div class="bug">
+
+<b>{{ bug.title }}</b>
+
+</div>
+
+{% empty %}
+
+<p>No bugs</p>
+
+{% endfor %}
+
+</div>
+
 </div>
 
 </div>
