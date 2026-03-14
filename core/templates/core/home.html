@@ -1,9 +1,13 @@
-<!DOCTYPE html><html><head>
-<title>Bug Tracking System</title><style>
+<!DOCTYPE html><html><head><title>Bug Tracking System</title><style>
+
+html{
+scroll-behavior:smooth;
+}
 
 body{
 margin:0;
 font-family:Arial, sans-serif;
+background:#f8fafc;
 }
 
 /* NAVBAR */
@@ -12,16 +16,30 @@ font-family:Arial, sans-serif;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:15px 40px;
+padding:18px 40px;
 background:#0f172a;
 color:white;
+position:sticky;
+top:0;
+z-index:1000;
+}
+
+.navbar h2{
+margin:0;
+font-size:24px;
+letter-spacing:1px;
 }
 
 .navbar a{
 color:white;
 text-decoration:none;
-margin-left:20px;
+margin-left:25px;
 font-weight:500;
+transition:0.3s;
+}
+
+.navbar a:hover{
+color:#38bdf8;
 }
 
 /* HERO */
@@ -37,27 +55,33 @@ color:white;
 }
 
 .hero h1{
-font-size:50px;
+font-size:55px;
 margin-bottom:10px;
 }
 
 .hero p{
 font-size:20px;
-margin-bottom:20px;
+margin-bottom:25px;
 }
 
 .btn{
 background:#ef4444;
-padding:12px 25px;
+padding:12px 28px;
 color:white;
 text-decoration:none;
-border-radius:5px;
+border-radius:6px;
+transition:0.3s;
+}
+
+.btn:hover{
+background:#dc2626;
+transform:scale(1.05);
 }
 
 /* FEATURES */
 
 .features{
-padding:80px 40px;
+padding:90px 40px;
 text-align:center;
 }
 
@@ -66,13 +90,21 @@ display:flex;
 justify-content:center;
 gap:30px;
 flex-wrap:wrap;
+margin-top:40px;
 }
 
 .feature-card{
-width:250px;
-padding:30px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-border-radius:10px;
+width:260px;
+padding:35px;
+box-shadow:0 8px 25px rgba(0,0,0,0.08);
+border-radius:12px;
+background:white;
+transition:0.3s;
+}
+
+.feature-card:hover{
+transform:translateY(-8px);
+box-shadow:0 15px 35px rgba(0,0,0,0.15);
 }
 
 /* STATS */
@@ -80,30 +112,37 @@ border-radius:10px;
 .stats{
 background:#0f172a;
 color:white;
-padding:70px 40px;
+padding:80px 40px;
 text-align:center;
 }
 
 .stats-grid{
 display:flex;
 justify-content:center;
-gap:50px;
+gap:60px;
 flex-wrap:wrap;
+margin-top:30px;
+}
+
+.stats-grid h1{
+font-size:42px;
+margin-bottom:5px;
 }
 
 /* ABOUT */
 
 .about{
-padding:80px 40px;
+padding:90px 40px;
 display:flex;
 align-items:center;
-gap:50px;
+gap:60px;
 flex-wrap:wrap;
 }
 
 .about img{
 width:100%;
-border-radius:10px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
 /* DASHBOARD SLIDER */
@@ -112,6 +151,7 @@ border-radius:10px;
 max-width:900px;
 margin:auto;
 position:relative;
+margin-top:40px;
 }
 
 .slide{
@@ -130,10 +170,10 @@ margin-top:15px;
 font-size:22px;
 }
 
-/* CONTACT SECTION */
+/* CONTACT */
 
 .contact-section{
-padding:80px 40px;
+padding:90px 40px;
 background:#0f172a;
 color:white;
 }
@@ -162,7 +202,7 @@ flex:1;
 min-width:350px;
 background:#1e293b;
 padding:30px;
-border-radius:10px;
+border-radius:12px;
 }
 
 .contact-form input,
@@ -171,7 +211,7 @@ width:100%;
 padding:12px;
 margin-bottom:15px;
 border:none;
-border-radius:5px;
+border-radius:6px;
 }
 
 .contact-form button{
@@ -179,8 +219,13 @@ background:#ef4444;
 border:none;
 padding:12px 25px;
 color:white;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
+transition:0.3s;
+}
+
+.contact-form button:hover{
+background:#dc2626;
 }
 
 /* FOOTER */
@@ -216,23 +261,21 @@ border-top:1px solid #1e293b;
 padding-top:20px;
 }
 
-</style></head><body><!-- NAVBAR --><div class="navbar">
-<h2>BugTracker</h2><div>
+</style></head><body><!-- NAVBAR --><div class="navbar"><h2>Bug Tracking System</h2><div>
 <a href="#">Home</a>
-<a href="#">About</a>
+<a href="#about">About</a>
 <a href="/login/">Login</a>
 <a href="/signup/">Signup</a>
-</div>
-</div><!-- HERO --><div class="hero"><div>
-<h1>Track Bugs Faster</h1>
-<p>Modern bug tracking system for developers and testers</p>
-<a href="/signup/" class="btn">Get Started</a>
-</div></div><!-- FEATURES --><section class="features"><h2>Why Use BugTracker?</h2><div class="features-grid"><div class="feature-card">
+<a href="#contact">Contact Us</a>
+
+</div></div><!-- HERO --><div class="hero"><div><h1>Track Bugs Faster</h1><p>Modern bug tracking system for developers and testers</p><a href="/signup/" class="btn">Get Started</a>
+
+</div></div><!-- FEATURES --><section class="features"><h2>Why Use Bug Tracking System?</h2><div class="features-grid"><div class="feature-card">
 <h3>Bug Reporting</h3>
 <p>Report and track bugs easily with detailed information.</p>
 </div><div class="feature-card">
 <h3>Team Collaboration</h3>
-<p>Developers and testers can collaborate efficiently.</p>
+<p>Developers and testers collaborate efficiently.</p>
 </div><div class="feature-card">
 <h3>Status Tracking</h3>
 <p>Track bug status from Open to Closed.</p>
@@ -248,13 +291,11 @@ padding-top:20px;
 </div><div>
 <h1>20+</h1>
 <p>Developers</p>
-</div></div></section><!-- ABOUT --><section class="about"><div style="flex:1"><img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d"></div><div style="flex:1"><h2>What is Bug Tracking?</h2><p>
-A Bug Tracking System helps teams identify,
-track and resolve software issues efficiently.
+</div></div></section><!-- ABOUT --><section class="about" id="about"><div style="flex:1"><img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d"></div><div style="flex:1"><h2>What is Bug Tracking?</h2><p>
+A Bug Tracking System helps teams identify, track and resolve software issues efficiently.
 </p><p>
-Testers report bugs, developers fix them,
-and managers track progress through dashboards.
-</p></div></section><!-- DASHBOARD PREVIEW --><section style="background:#f5f5f5; padding:80px 40px; text-align:center;"><h2>Bug Management Dashboard</h2><div class="slider"><div class="slide">
+Testers report bugs, developers fix them, and managers track progress through dashboards.
+</p></div></section><!-- DASHBOARD --><section style="background:#f5f5f5; padding:80px 40px; text-align:center;"><h2>Bug Management Dashboard</h2><div class="slider"><div class="slide">
 <img src="https://miro.medium.com/max/1400/1*Qk1Yq6x7X7vC18JNpDutLw.png">
 <h3>Open Bugs</h3>
 </div><div class="slide">
@@ -263,25 +304,27 @@ and managers track progress through dashboards.
 </div><div class="slide">
 <img src="https://miro.medium.com/max/1400/1*kanban-done-column.png">
 <h3>Closed Bugs</h3>
-</div></div></section><!-- CONTACT --><section class="contact-section"><div class="contact-container"><div class="map"><iframe src="https://maps.google.com/maps?q=Ahmedabad&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe></div><div class="contact-form"><h2>Contact Us</h2><form><input type="text" placeholder="Your Name"><input type="email" placeholder="Your Email"><input type="text" placeholder="Subject"><textarea rows="5" placeholder="Message"></textarea><button>Send Message</button>
+</div></div></section><!-- CONTACT --><section class="contact-section" id="contact"><div class="contact-container"><div class="map"><iframe src="https://maps.google.com/maps?q=Ahmedabad&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe></div><div class="contact-form"><h2>Contact Us</h2><form><input type="text" placeholder="Your Name">
+<input type="email" placeholder="Your Email">
+<input type="text" placeholder="Subject"><textarea rows="5" placeholder="Message"></textarea><button>Send Message</button>
 
 </form></div></div></section><!-- FOOTER --><footer class="footer"><div class="footer-grid"><div>
-<h3>BugTracker</h3>
+<h3>Bug Tracking System</h3>
 <p>Modern bug tracking platform for teams.</p>
 </div><div>
 <h3>Quick Links</h3>
 <a href="#">Home</a>
-<a href="#">About</a>
-<a href="#">Login</a>
-<a href="#">Signup</a>
+<a href="#about">About</a>
+<a href="/login/">Login</a>
+<a href="/signup/">Signup</a>
 </div><div>
 <h3>Services</h3>
 <a href="#">Bug Tracking</a>
 <a href="#">Project Management</a>
 <a href="#">Developer Tools</a>
-</div></div><div class="footer-bottom">© 2026 BugTracker System
+</div></div><div class="footer-bottom">© 2026 Bug Tracking System
 
-</div></footer><!-- SLIDER SCRIPT --><script>
+</div></footer><script>
 
 let slideIndex = 0;
 
@@ -307,4 +350,5 @@ setTimeout(showSlides,3000);
 
 showSlides();
 
-</script></body></html>
+</script></body>
+</html>
