@@ -14,7 +14,7 @@ urlpatterns = [
 
     path('add-bug/', views.add_bug, name='add_bug'),
 
-    path('bugs/', views.bug_list, name='bug_list'),
+    path('bug-list/', views.bug_list, name='bug_list'),
 
     path('start/<int:id>/', views.start_bug, name='start_bug'),
 

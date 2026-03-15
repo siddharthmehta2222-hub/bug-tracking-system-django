@@ -1,16 +1,7 @@
 {% load static %}
 
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<title>BugTracker Dashboard</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
+<!DOCTYPE html><html><head>
+<title>BugTracker Dashboard</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
 
 /* GLOBAL */
 
@@ -83,10 +74,19 @@ color:white;
 font-size:13px;
 font-weight:500;
 transition:0.3s;
+display:inline-block;
 }
 
 .btn:hover{
 background:#2563eb;
+}
+
+.btn.close{
+background:#ef4444;
+}
+
+.btn.close:hover{
+background:#dc2626;
 }
 
 /* STAT CARDS */
@@ -135,7 +135,7 @@ flex-wrap:wrap;
 
 .column{
 flex:1;
-min-width:250px;
+min-width:260px;
 background:rgba(255,255,255,0.05);
 padding:20px;
 border-radius:12px;
@@ -144,6 +144,8 @@ border-radius:12px;
 .column h2{
 font-size:18px;
 margin-bottom:15px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+padding-bottom:6px;
 }
 
 /* BUG CARD */
@@ -163,6 +165,14 @@ background:#334155;
 transform:scale(1.02);
 }
 
+/* BUG META */
+
+.meta{
+font-size:12px;
+color:#cbd5f5;
+margin-top:5px;
+}
+
 /* PRIORITY BADGES */
 
 .priority{
@@ -174,7 +184,7 @@ font-weight:bold;
 margin-top:6px;
 text-transform:uppercase;
 color:white;
-letter-spacing: 1px;
+letter-spacing:1px;
 }
 
 .priority.low{
@@ -208,149 +218,63 @@ padding:20px;
 
 }
 
-</style>
+</style></head><body><!-- SIDEBAR --><div class="sidebar"><h2>BugTracker</h2><a href="{% url 'dashboard' %}">Dashboard</a>
+<a href="#">Projects</a>
+<a href="{% url 'bug_list' %}">Bugs</a>
+<a href="{% url 'add_bug' %}">Report Bug</a>
 
-</head>
+</div><!-- MAIN CONTENT --><div class="main"><!-- HEADER --><div class="header"><h1>Dashboard</h1><a href="{% url 'add_bug' %}" class="btn">+ Report Bug</a>
 
-<body>
-
-<!-- SIDEBAR -->
-
-<div class="sidebar">
-
-<h2>BugTracker</h2>
-
-<a href="{% url 'dashboard' %}">Dashboard</a> <a href="#">Projects</a> <a href="{% url 'bug_list' %}">Bugs</a> <a href="{% url 'add_bug' %}">Report Bug</a>
-
-</div>
-
-<!-- MAIN CONTENT -->
-
-<div class="main">
-
-<!-- HEADER -->
-
-<div class="header">
-
-<h1>Dashboard</h1>
-
-<a href="{% url 'add_bug' %}" class="btn">+ Report Bug</a>
-
-</div>
-
-<!-- STATISTICS -->
-
-<div class="cards">
-
-<div class="card">
+</div><!-- STATISTICS --><div class="cards"><div class="card">
 <h3>Total Bugs</h3>
 <p>{{ total_bugs }}</p>
-</div>
-
-<div class="card">
+</div><div class="card">
 <h3>Open</h3>
 <p>{{ open_bugs }}</p>
-</div>
-
-<div class="card">
+</div><div class="card">
 <h3>In Progress</h3>
 <p>{{ progress_bugs }}</p>
-</div>
-
-<div class="card">
+</div><div class="card">
 <h3>Closed</h3>
 <p>{{ closed_bugs }}</p>
-</div>
+</div></div><!-- BUG WORKFLOW BOARD --><div class="board"><!-- OPEN BUGS --><div class="column"><h2>Open Bugs</h2>{% for bug in open_bug_list %}
 
-</div>
+<div class="bug"><b>#{{ bug.id }} — {{ bug.title }}</b>
 
-<!-- BUG WORKFLOW BOARD -->
-
-<div class="board">
-
-<!-- OPEN BUGS -->
-
-<div class="column">
-
-<h2>Open Bugs</h2>
-
-{% for bug in open_bug_list %}
-
-<div class="bug">
-
-<b>{{ bug.title }}</b><br>
-
-<span class="priority {{ bug.priority }}">
+<div class="meta">
+Project: {{ bug.project }}<br>
+Reported by: {{ bug.reported_by }}
+</div><span class="priority {{ bug.priority }}">
 {{ bug.priority }}
-</span>
+</span><br><br>
 
-<br><br>
+<a href="{% url 'start_bug' bug.id %}" class="btn">Start Work</a>
 
-<a href="/start/{{ bug.id }}" class="btn">Start Work</a>
+</div>{% empty %}
 
-</div>
+<p>No bugs</p>{% endfor %}
 
-{% empty %}
+</div><!-- IN PROGRESS --><div class="column"><h2>In Progress</h2>{% for bug in progress_bug_list %}
 
-<p>No bugs</p>
+<div class="bug"><b>#{{ bug.id }} — {{ bug.title }}</b>
 
-{% endfor %}
+<div class="meta">
+Assigned To: {{ bug.assigned_to }}
+</div><br><a href="{% url 'close_bug' bug.id %}" class="btn close">Close Bug</a>
 
-</div>
+</div>{% empty %}
 
-<!-- IN PROGRESS -->
+<p>No bugs</p>{% endfor %}
 
-<div class="column">
+</div><!-- CLOSED BUGS --><div class="column"><h2>Closed</h2>{% for bug in closed_bug_list %}
 
-<h2>In Progress</h2>
+<div class="bug"><b>#{{ bug.id }} — {{ bug.title }}</b>
 
-{% for bug in progress_bug_list %}
+<div class="meta">
+Project: {{ bug.project }}
+</div></div>{% empty %}
 
-<div class="bug">
+<p>No bugs</p>{% endfor %}
 
-<b>{{ bug.title }}</b><br>
-
-Assigned: {{ bug.assigned_to }}
-
-<br><br>
-
-<a href="/close/{{ bug.id }}" class="btn">Close Bug</a>
-
-</div>
-
-{% empty %}
-
-<p>No bugs</p>
-
-{% endfor %}
-
-</div>
-
-<!-- CLOSED BUGS -->
-
-<div class="column">
-
-<h2>Closed</h2>
-
-{% for bug in closed_bug_list %}
-
-<div class="bug">
-
-<b>{{ bug.title }}</b>
-
-</div>
-
-{% empty %}
-
-<p>No bugs</p>
-
-{% endfor %}
-
-</div>
-
-</div>
-
-</div>
-
-</body>
+</div></div></div></body>
 </html>
