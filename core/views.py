@@ -36,11 +36,7 @@ def loginView(request):
 
         if user is not None:
             login(request, user)
-            # Role based redirect
-            if role == "admin":
-                return redirect('/admin/')
-            else:
-                return redirect('dashboard')
+            return redirect('/dashboard/')
         else:
             messages.error(request, "Invalid email or password")
 
