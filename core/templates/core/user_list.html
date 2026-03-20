@@ -1,0 +1,76 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5"><!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold">User Management</h3>
+    <a href="{% url 'add_user' %}" class="btn btn-primary">+ Add User</a>
+</div>
+
+<!-- CARD -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td class="fw-semibold">{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+
+                        <!-- ROLE BADGE -->
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">Admin</span>
+                            {% elif user.role == 'manager' %}
+                                <span class="badge bg-primary">Manager</span>
+                            {% elif user.role == 'developer' %}
+                                <span class="badge bg-info text-dark">Developer</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Tester</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- ACTION -->
+                        <td class="text-end">
+                            <a href="{% url 'delete_user' user.id %}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Delete this user?')">
+                               Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            No users available
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+{% endblock content %}

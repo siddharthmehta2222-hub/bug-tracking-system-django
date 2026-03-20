@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 
-from .models import Bug
+from .models import Bug, User
 from .forms import BugForm, UserSignupForm
 
 # ==================================================
@@ -150,3 +151,36 @@ def home(request):
     }
 
     return render(request, 'core/home.html', context)
+
+def add_user(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        role = request.POST.get('role')
+        password = request.POST.get('password')
+
+        # Logic to create the user
+        User.objects.create(
+            username=username,
+            email=email,
+            # Note: The default Django User model does NOT have a 'role' field.
+            # If you get an error here, you need a Custom User Model.
+            role=role, 
+            password=make_password(password)
+        )
+
+        return redirect('add_user')
+
+    return render(request, 'core/add_user.html')
+
+@login_required
+def user_list(request):
+    users = User.objects.all().order_by('-id')
+    return render(request, 'core/user_list.html', {'users': users})
+
+@login_required
+def delete_user(request, id):
+    user = User.objects.get(id=id)
+    user.delete()
+    messages.success(request, "User deleted successfully")
+    return redirect('user_list')
