@@ -1,0 +1,70 @@
+[16:20, 21/03/2026] Er.Siddharth Mehta: from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+from .models import Bug
+from .forms import BugForm, UserSignupForm
+
+# ✅ Use custom user model properly
+User = get_user_model()
+
+# ==================================================
+# USER SIGNUP
+# ==================================================
+def userSignupView(request):
+    if request.method == "POST":
+        form = UserSignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Account created successfully. Please login.")
+            return redirect('/login/')
+  …
+[16:27, 21/03/2026] Er.Siddharth Mehta: {% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow border-0">
+        <div class="card-body">
+
+            <h3 class="text-center mb-4">User Details</h3>
+
+            <div class="row">
+
+                <!-- IMAGE -->
+                <div class="col-md-4 text-center">
+                    {% if user.image %}
+                        <img src="{{ user.image.url }}" class="img-fluid rounded" style="height:200px;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/200" class="img-fluid rounded">
+                    {% endif %}
+                </div>
+
+                <!-- DETAILS -->
+                <div class="col-md-8">
+
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Role:</strong> {{ user.role }}</p>
+
+                    <p><strong>First Name:</strong> {{ user.first_name }}</p>
+                    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+
+                    <p><strong>Phone:</strong> {{ user.phone }}</p>
+                    <p><strong>Gender:</strong> {{ user.gender }}</p>
+                    <p><strong>DOB:</strong> {{ user.dob }}</p>
+
+                    <p><strong>Address:</strong> {{ user.address }}</p>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

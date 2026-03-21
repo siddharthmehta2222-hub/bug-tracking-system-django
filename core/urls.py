@@ -28,6 +28,20 @@ urlpatterns = [
 
     path('user-list/', views.user_list, name='user_list'),
 
+    path('view-user/<int:id>/', views.view_user, name='view_user'),
+
+
     path('delete-user/<int:id>/', views.delete_user, name='delete_user'),
+
+    path('edit-user/<int:id>/', views.edit_user, name='edit_user'),
+
+    path('user-report/', views.user_report, name='user_report'),
+
+    path('export-users-excel/', views.export_users_excel, name='export_users_excel'),
+
+    path('export-users-pdf/', views.export_users_pdf, name='export_users_pdf'),
+
+
+     
 
 ]

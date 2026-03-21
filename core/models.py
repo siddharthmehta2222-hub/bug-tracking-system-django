@@ -11,9 +11,23 @@ class User(AbstractUser):
         ('tester', 'Tester'),
     )
 
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    )
+
+
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='tester')
+
+    # ✅ NEW FIELDS (IMPORTANT for your UI like teacher project)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    dob = models.DateField(blank=True, null=True)
+    image = models.ImageField(upload_to='users/', blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -69,5 +83,5 @@ class Bug(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def _str_(self):
         return self.title

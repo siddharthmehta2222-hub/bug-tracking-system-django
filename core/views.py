@@ -1,16 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password
 
-from .models import Bug, User
+
+from .models import Bug
 from .forms import BugForm, UserSignupForm
+import openpyxl
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+
+# ✅ Use custom user model properly
+User = get_user_model()
 
 # ==================================================
 # USER SIGNUP
 # ==================================================
-
 def userSignupView(request):
     if request.method == "POST":
         form = UserSignupForm(request.POST)
@@ -26,12 +31,10 @@ def userSignupView(request):
 # ==================================================
 # LOGIN
 # ==================================================
-
 def loginView(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
-        role = request.POST.get("role")
 
         user = authenticate(request, username=email, password=password)
 
@@ -46,7 +49,6 @@ def loginView(request):
 # ==================================================
 # LOGOUT
 # ==================================================
-
 @login_required
 def logoutView(request):
     logout(request)
@@ -55,28 +57,18 @@ def logoutView(request):
 # ==================================================
 # DASHBOARD
 # ==================================================
-
 @login_required
 def dashboardView(request):
     total_bugs = Bug.objects.count()
-
     open_bugs = Bug.objects.filter(status='open').count()
     progress_bugs = Bug.objects.filter(status='in_progress').count()
     closed_bugs = Bug.objects.filter(status='closed').count()
-
-    open_bug_list = Bug.objects.filter(status='open')
-    progress_bug_list = Bug.objects.filter(status='in_progress')
-    closed_bug_list = Bug.objects.filter(status='closed')
 
     context = {
         'total_bugs': total_bugs,
         'open_bugs': open_bugs,
         'progress_bugs': progress_bugs,
         'closed_bugs': closed_bugs,
-        'open_bug_list': open_bug_list,
-        'progress_bug_list': progress_bug_list,
-        'closed_bug_list': closed_bug_list,
-        'user': request.user
     }
 
     return render(request, "core/dashboard.html", context)
@@ -84,7 +76,6 @@ def dashboardView(request):
 # ==================================================
 # START BUG
 # ==================================================
-
 @login_required
 def start_bug(request, id):
     bug = get_object_or_404(Bug, id=id)
@@ -96,7 +87,6 @@ def start_bug(request, id):
 # ==================================================
 # CLOSE BUG
 # ==================================================
-
 @login_required
 def close_bug(request, id):
     bug = get_object_or_404(Bug, id=id)
@@ -108,7 +98,6 @@ def close_bug(request, id):
 # ==================================================
 # ADD BUG
 # ==================================================
-
 @login_required
 def add_bug(request):
     if request.method == "POST":
@@ -127,7 +116,6 @@ def add_bug(request):
 # ==================================================
 # BUG LIST
 # ==================================================
-
 @login_required
 def bug_list(request):
     bugs = Bug.objects.all().order_by('-id')
@@ -136,51 +124,163 @@ def bug_list(request):
 # ==================================================
 # HOME PAGE
 # ==================================================
-
 def home(request):
-    total_bugs = Bug.objects.count()
-    open_bugs = Bug.objects.filter(status='open').count()
-    progress_bugs = Bug.objects.filter(status='in_progress').count()
-    closed_bugs = Bug.objects.filter(status='closed').count()
-
     context = {
-        'total_bugs': total_bugs,
-        'open_bugs': open_bugs,
-        'progress_bugs': progress_bugs,
-        'closed_bugs': closed_bugs
+        'total_bugs': Bug.objects.count(),
+        'open_bugs': Bug.objects.filter(status='open').count(),
+        'progress_bugs': Bug.objects.filter(status='in_progress').count(),
+        'closed_bugs': Bug.objects.filter(status='closed').count()
     }
-
     return render(request, 'core/home.html', context)
 
+# ==================================================
+# ADD USER
+# ==================================================
+@login_required
 def add_user(request):
     if request.method == "POST":
+
         username = request.POST.get('username')
         email = request.POST.get('email')
-        role = request.POST.get('role')
         password = request.POST.get('password')
+        role = request.POST.get('role')
 
-        # Logic to create the user
-        User.objects.create(
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        phone = request.POST.get('phone')
+        gender = request.POST.get('gender')
+        dob = request.POST.get('dob')
+        address = request.POST.get('address')
+
+        image = request.FILES.get('image')
+
+        # ✅ Create user
+        user = User.objects.create_user(
             username=username,
             email=email,
-            # Note: The default Django User model does NOT have a 'role' field.
-            # If you get an error here, you need a Custom User Model.
-            role=role, 
-            password=make_password(password)
+            password=password
         )
 
-        return redirect('add_user')
+        # Extra fields
+        user.role = role
+        user.first_name = first_name
+        user.last_name = last_name
+        user.phone = phone
+        user.gender = gender
+        user.dob = dob
+        user.address = address
+
+        if image:
+            user.image = image
+
+        user.save()
+
+        messages.success(request, "User Added Successfully ✅")
+        return redirect('user_list')
 
     return render(request, 'core/add_user.html')
 
+# ==================================================
+# USER LIST
+# ==================================================
 @login_required
 def user_list(request):
     users = User.objects.all().order_by('-id')
     return render(request, 'core/user_list.html', {'users': users})
 
+# ==================================================
+# DELETE USER
+# ==================================================
 @login_required
 def delete_user(request, id):
-    user = User.objects.get(id=id)
+    user = get_object_or_404(User, id=id)
     user.delete()
     messages.success(request, "User deleted successfully")
     return redirect('user_list')
+
+@login_required
+def view_user(request, id):
+    user = get_object_or_404(User, id=id)
+    return render(request, 'core/view_user.html', {'user': user})
+
+@login_required
+def edit_user(request, id):
+    user = get_object_or_404(User, id=id)
+
+    if request.method == "POST":
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.phone = request.POST.get('phone')
+        user.gender = request.POST.get('gender')
+        user.dob = request.POST.get('dob')
+        user.address = request.POST.get('address')
+        user.role = request.POST.get('role')
+
+        if request.FILES.get('image'):
+            user.image = request.FILES.get('image')
+
+        user.save()
+        messages.success(request, "User updated successfully ✅")
+        return redirect('user_list')
+
+    return render(request, 'core/edit_user.html', {'user': user})
+
+@login_required
+def user_report(request):
+    users = User.objects.all().order_by('-id')
+    return render(request, 'core/user_report.html', {'users': users})
+
+@login_required
+def export_users_excel(request):
+    users = User.objects.all()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Users"
+
+    # HEADER
+    headers = ['ID', 'Name', 'Email', 'Phone', 'Role', 'DOB']
+    ws.append(headers)
+
+    # DATA
+    for user in users:
+        ws.append([
+            user.id,
+            f"{user.first_name} {user.last_name}",
+            user.email,
+            user.phone,
+            user.role,
+            str(user.dob)
+        ])
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=users.xlsx'
+
+    wb.save(response)
+    return response
+
+@login_required
+def export_users_pdf(request):
+    users = User.objects.all()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=users.pdf'
+
+    p = canvas.Canvas(response)
+
+    y = 800
+    p.setFont("Helvetica", 10)
+
+    for user in users:
+        text = f"{user.id} | {user.first_name} {user.last_name} | {user.email} | {user.role}"
+        p.drawString(30, y, text)
+        y -= 20
+
+        if y < 50:
+            p.showPage()
+            y = 800
+
+    p.save()
+    return response
