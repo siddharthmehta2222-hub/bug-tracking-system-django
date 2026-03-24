@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 
+
 urlpatterns = [
 
 
@@ -40,6 +41,8 @@ urlpatterns = [
     path('export-users-excel/', views.export_users_excel, name='export_users_excel'),
 
     path('export-users-pdf/', views.export_users_pdf, name='export_users_pdf'),
+
+    path('change-password/<int:id>/', views.change_password, name='change_password'),
 
 
      

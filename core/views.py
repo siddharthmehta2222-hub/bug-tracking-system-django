@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 
 
 from .models import Bug
@@ -9,6 +10,18 @@ from .forms import BugForm, UserSignupForm
 import openpyxl
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
+
+
+
+
+
+
+def admin_only(view_func):
+    def wrapper(request, *args, **kwargs):
+        if request.user.role != 'admin':
+            return HttpResponseForbidden("You are not allowed ❌")
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 # ✅ Use custom user model properly
 User = get_user_model()
@@ -284,3 +297,40 @@ def export_users_pdf(request):
 
     p.save()
     return response
+
+@login_required
+def change_password(request, id):
+    user = get_object_or_404(User, id=id)
+
+    if request.method == "POST":
+        new_password = request.POST.get("password")
+        user.password = make_password(new_password)
+        user.save()
+
+        messages.success(request, "Password updated successfully")
+        return redirect('view_user', id=user.id)
+
+    return render(request, 'core/change_password.html', {'user': user})
+
+from django.contrib.auth.hashers import make_password
+
+@login_required
+@admin_only
+def change_password(request, id):
+    user = get_object_or_404(User, id=id)
+
+    if request.method == "POST":
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match ❌")
+            return redirect('change_password', id=id)
+
+        user.password = make_password(password)
+        user.save()
+
+        messages.success(request, "Password updated successfully ✅")
+        return redirect('user_list')
+
+    return render(request, 'core/change_password.html', {'user': user})
