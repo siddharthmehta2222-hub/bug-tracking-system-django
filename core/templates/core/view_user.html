@@ -1,68 +1,221 @@
-[16:20, 21/03/2026] Er.Siddharth Mehta: from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-
-from .models import Bug
-from .forms import BugForm, UserSignupForm
-
-# ✅ Use custom user model properly
-User = get_user_model()
-
-# ==================================================
-# USER SIGNUP
-# ==================================================
-def userSignupView(request):
-    if request.method == "POST":
-        form = UserSignupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Account created successfully. Please login.")
-            return redirect('/login/')
-  …
-[16:27, 21/03/2026] Er.Siddharth Mehta: {% extends 'core/base.html' %}
+{% extends 'core/base.html' %}
 
 {% block content %}
 
+<style>
+
+/* PROFILE CARD */
+.profile-card{
+    background:white;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    padding:30px;
+}
+
+/* IMAGE */
+.profile-img{
+    width:150px;
+    height:150px;
+    object-fit:cover;
+    border-radius:50%;
+    border:4px solid #3b82f6;
+}
+
+/* NAME */
+.profile-name{
+    font-size:22px;
+    font-weight:600;
+    margin-top:10px;
+}
+
+/* ROLE COLORS */
+.role-admin{background:#fee2e2;color:#b91c1c;}
+.role-manager{background:#dbeafe;color:#1d4ed8;}
+.role-developer{background:#cffafe;color:#0e7490;}
+.role-tester{background:#e5e7eb;color:#374151;}
+
+/* BADGES */
+.badge-pill{
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+/* DETAILS */
+.detail-label{
+    color:#64748b;
+    font-size:13px;
+}
+
+.detail-value{
+    font-weight:500;
+}
+
+/* BOX */
+.info-box{
+    background:#f9fafb;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+/* STATUS */
+.status-active{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+/* BUTTONS */
+.action-btn{
+    border-radius:8px;
+}
+
+</style>
+
 <div class="container mt-5">
 
-    <div class="card shadow border-0">
-        <div class="card-body">
+    <!-- 🔍 DEBUG (Remove later) -->
+    <p style="font-size:12px;color:gray;">
+        Logged user role: {{ request.user.role }}
+    </p>
 
-            <h3 class="text-center mb-4">User Details</h3>
+    <!-- TOP ACTION BAR -->
+    <div class="d-flex justify-content-between mb-4">
 
-            <div class="row">
+        <!-- BACK -->
+        <a href="{% url 'user_list' %}" class="btn btn-secondary action-btn">
+            ← Back
+        </a>
 
-                <!-- IMAGE -->
-                <div class="col-md-4 text-center">
-                    {% if user.image %}
-                        <img src="{{ user.image.url }}" class="img-fluid rounded" style="height:200px;">
-                    {% else %}
-                        <img src="https://via.placeholder.com/200" class="img-fluid rounded">
-                    {% endif %}
+        <!-- ✅ SHOW BUTTONS TO LOGGED USERS -->
+        {% if request.user.is_authenticated %}
+        <div>
+
+            <a href="{% url 'edit_user' user.id %}" class="btn btn-warning action-btn me-2">
+                ✏️ Edit
+            </a>
+
+            <a href="{% url 'delete_user' user.id %}" 
+               class="btn btn-danger action-btn me-2"
+               onclick="return confirm('Delete this user?')">
+               🗑 Delete
+            </a>
+
+            <a href="{% url 'change_password' user.id %}" class="btn btn-dark action-btn">
+                🔐 Password
+            </a>
+
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="profile-card">
+
+        <div class="row align-items-center">
+
+            <!-- LEFT -->
+            <div class="col-md-4 text-center">
+
+                {% if user.image %}
+                    <img src="{{ user.image.url }}" class="profile-img">
+                {% else %}
+                    <img src="https://via.placeholder.com/150" class="profile-img">
+                {% endif %}
+
+                <div class="profile-name">
+                    {{ user.first_name }} {{ user.last_name }}
                 </div>
 
-                <!-- DETAILS -->
-                <div class="col-md-8">
+                <!-- ROLE -->
+                <div class="mt-2">
+                    <span class="badge-pill 
+                        {% if user.role == 'admin' %}role-admin
+                        {% elif user.role == 'manager' %}role-manager
+                        {% elif user.role == 'developer' %}role-developer
+                        {% else %}role-tester
+                        {% endif %}
+                    ">
+                        {{ user.role|title }}
+                    </span>
+                </div>
 
-                    <p><strong>Username:</strong> {{ user.username }}</p>
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                    <p><strong>Role:</strong> {{ user.role }}</p>
+                <!-- STATUS -->
+                <div class="mt-2">
+                    <span class="badge-pill status-active">
+                        Active
+                    </span>
+                </div>
 
-                    <p><strong>First Name:</strong> {{ user.first_name }}</p>
-                    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+            </div>
 
-                    <p><strong>Phone:</strong> {{ user.phone }}</p>
-                    <p><strong>Gender:</strong> {{ user.gender }}</p>
-                    <p><strong>DOB:</strong> {{ user.dob }}</p>
+            <!-- RIGHT -->
+            <div class="col-md-8">
 
-                    <p><strong>Address:</strong> {{ user.address }}</p>
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="detail-label">Username</div>
+                            <div class="detail-value">{{ user.username }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">{{ user.email }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value">{{ user.phone }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="detail-label">Gender</div>
+                            <div class="detail-value">{{ user.gender }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="detail-label">Date of Birth</div>
+                            <div class="detail-value">{{ user.dob }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="detail-label">Last Login</div>
+                            <div class="detail-value">
+                                {% if user.last_login %}
+                                    {{ user.last_login }}
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="info-box">
+                            <div class="detail-label">Address</div>
+                            <div class="detail-value">{{ user.address }}</div>
+                        </div>
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
+
     </div>
 
 </div>
