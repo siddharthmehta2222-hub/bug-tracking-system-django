@@ -44,6 +44,9 @@ urlpatterns = [
 
     path('change-password/<int:id>/', views.change_password, name='change_password'),
 
+    path('export-bugs-excel/', views.export_bugs_excel, name='export_bugs_excel'),
+
+    path('export-bugs-pdf/', views.export_bugs_pdf, name='export_bugs_pdf')
 
      
 
