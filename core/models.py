@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+# ==================================================
+# USER MODEL
+# ==================================================
 class User(AbstractUser):
 
     ROLE_CHOICES = (
@@ -17,34 +20,45 @@ class User(AbstractUser):
         ('other', 'Other'),
     )
 
-
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(unique=True)
+
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='tester')
 
-    # ✅ NEW FIELDS (IMPORTANT for your UI like teacher project)
+    # EXTRA FIELDS
     phone = models.CharField(max_length=15, blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     image = models.ImageField(upload_to='users/', blank=True, null=True)
     address = models.TextField(blank=True, null=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    # ✅ FIX: Use username for login (stable)
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
 
+    # ✅ FIX: Correct method name
     def _str_(self):
-        return f"{self.email} ({self.role})"
+        return f"{self.username} ({self.role})"
 
 
+# ==================================================
+# PROJECT MODEL
+# ==================================================
 class Project(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def _str_(self):
+    class Meta:
+        ordering = ['-created_at']
+
+    def _str_(self):   # ✅ fixed method name
         return self.name
 
 
+# ==================================================
+# BUG MODEL
+# ==================================================
 class Bug(models.Model):
 
     STATUS_CHOICES = (
@@ -72,9 +86,12 @@ class Bug(models.Model):
         related_name='reported_bugs'
     )
 
+    # already correct ✅
     assigned_to = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='assigned_bugs'
     )
 
@@ -82,6 +99,10 @@ class Bug(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def _str_(self):
-        return self.title
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.status})"
