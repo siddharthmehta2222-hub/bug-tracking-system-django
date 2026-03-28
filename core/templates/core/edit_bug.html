@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <h3>Edit Bug</h3>
+    <hr>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Title</label>
+            <input type="text" name="title" value="{{ bug.title }}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Priority</label>
+            <select name="priority" class="form-control">
+                <option value="low" {% if bug.priority == 'low' %}selected{% endif %}>Low</option>
+                <option value="medium" {% if bug.priority == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="high" {% if bug.priority == 'high' %}selected{% endif %}>High</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Update</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+{% endblock %}
