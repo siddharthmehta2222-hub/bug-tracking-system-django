@@ -13,37 +13,43 @@ import openpyxl
 from reportlab.pdfgen import canvas
 
 
+User = get_user_model()
+
+
 # ==================================================
 # ADMIN ONLY DECORATOR
 # ==================================================
 def admin_only(view_func):
     def wrapper(request, *args, **kwargs):
-        if request.user.role != 'admin':
+        if not request.user.is_authenticated or request.user.role != 'admin':
             return HttpResponseForbidden("You are not allowed ❌")
         return view_func(request, *args, **kwargs)
     return wrapper
-
-
-# ✅ Custom user model
-User = get_user_model()
 
 
 # ==================================================
 # USER SIGNUP
 # ==================================================
 def userSignupView(request):
+    print("METHOD:", request.method)   # 🔥 DEBUG
+
     if request.method == "POST":
+        print("POST DATA:", request.POST)   # 🔥 DEBUG
+
         form = UserSignupForm(request.POST)
+
         if form.is_valid():
+            print("FORM VALID ✅")   # 🔥 DEBUG
             form.save()
             messages.success(request, "Account created successfully. Please login.")
-            return redirect('/login/')
+            return redirect('login')
+        else:
+            print("FORM ERRORS ❌:", form.errors)   # 🔥 DEBUG
+
     else:
         form = UserSignupForm()
 
     return render(request, 'core/signup.html', {'form': form})
-
-
 # ==================================================
 # LOGIN
 # ==================================================
@@ -52,85 +58,180 @@ def loginView(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(request, username=email, password=password)
+        try:
+            user_obj = User.objects.get(email=email)
+            user = authenticate(
+                request,
+                username=user_obj.username,   # 🔥 FIX HERE
+                password=password
+            )
+        except User.DoesNotExist:
+            user = None
 
         if user is not None:
             login(request, user)
-            return redirect('/dashboard/')
+            return redirect('dashboard')
         else:
-            messages.error(request, "Invalid email or password")
+            messages.error(request, "Invalid email or password ❌")
 
     return render(request, "core/login.html")
-
-
-# ==================================================
 # LOGOUT
 # ==================================================
 @login_required
 def logoutView(request):
     logout(request)
-    return redirect('/login/')
+    return redirect('login')
 
 
 # ==================================================
-# DASHBOARD
+# 🚀 DASHBOARD (FIXED + UPGRADED)
 # ==================================================
 @login_required
 def dashboardView(request):
 
-    if request.user.role == 'admin':
+    user = request.user
+
+    # 🔥 ROLE BASED DATA
+    if user.role in ['admin', 'manager']:
         bugs = Bug.objects.all()
+
+    elif user.role == 'developer':
+        bugs = Bug.objects.filter(assigned_to=user)
+
+    elif user.role == 'tester':
+        bugs = Bug.objects.filter(reported_by=user)
+
     else:
-        bugs = Bug.objects.filter(assigned_to=request.user)
+        bugs = Bug.objects.none()
+
+
+    # 🔍 SEARCH + FILTER ✅ (ADDED)
+    search_query = request.GET.get('search')
+    status_filter = request.GET.get('status')
+
+    if search_query:
+        bugs = bugs.filter(title__icontains=search_query)
+
+    if status_filter:
+        bugs = bugs.filter(status=status_filter)
+
+
+    # 📊 COUNTS ✅ (UPDATED AFTER FILTER)
+    total_bugs = bugs.count()
+    open_bugs = bugs.filter(status='open').count()
+    progress_bugs = bugs.filter(status='in_progress').count()
+    closed_bugs = bugs.filter(status='closed').count()
+
+
+    # 🔥 LATEST BUGS (AFTER FILTER)
+    latest_bugs = bugs.order_by('-id')[:5]
+
 
     context = {
-        'total_bugs': bugs.count(),
-        'open_bugs': bugs.filter(status='open').count(),
-        'progress_bugs': bugs.filter(status='in_progress').count(),
-        'closed_bugs': bugs.filter(status='closed').count(),
+        'total_bugs': total_bugs,
+        'open_bugs': open_bugs,
+        'progress_bugs': progress_bugs,
+        'closed_bugs': closed_bugs,
+        'bugs': latest_bugs,
+        'role': user.role
     }
 
     return render(request, "core/dashboard.html", context)
 
+def change_status(request, id, status):
+    bug = get_object_or_404(Bug, id=id)
+    bug.status = status
+    bug.save()
+    return redirect('dashboard')
+
+
+def edit_bug(request, id):
+    bug = get_object_or_404(Bug, id=id)
+
+    if request.method == 'POST':
+        bug.title = request.POST.get('title')
+        bug.priority = request.POST.get('priority')
+        bug.save()
+        return redirect('dashboard')
+
+    return render(request, 'core/edit_bug.html', {'bug': bug})
+
+@login_required
+def delete_bug(request, id):
+    bug = get_object_or_404(Bug, id=id)
+
+    # only admin & manager allowed
+    if request.user.role in ['admin', 'manager']:
+        bug.delete()
+
+    return redirect('dashboard')
 # ==================================================
 # BUG ACTIONS
 # ==================================================
 @login_required
 def start_bug(request, id):
     bug = get_object_or_404(Bug, id=id)
-    bug.status = "in_progress"
-    bug.save()
-    messages.success(request, "Bug moved to In Progress")
-    return redirect('dashboard')
 
+    # 🔐 SECURITY CHECK
+    if request.user.role not in ['developer', 'manager', 'admin']:
+        return HttpResponseForbidden("You are not allowed ❌")
+
+    # ✅ Only allow if assigned OR admin/manager
+    if request.user.role == 'developer' and bug.assigned_to != request.user:
+        return HttpResponseForbidden("Not your bug ❌")
+
+    if bug.status == 'open':
+        bug.status = "in_progress"
+        bug.save()
+
+    messages.success(request, "Bug moved to In Progress ✅")
+    return redirect('dashboard')
 
 @login_required
 def close_bug(request, id):
     bug = get_object_or_404(Bug, id=id)
-    bug.status = "closed"
-    bug.save()
-    messages.success(request, "Bug closed successfully")
-    return redirect('dashboard')
 
+    # 🔐 SECURITY CHECK
+    if request.user.role not in ['manager', 'admin']:
+        return HttpResponseForbidden("You are not allowed ❌")
+
+    if bug.status != 'closed':
+        bug.status = "closed"
+        bug.save()
+
+    messages.success(request, "Bug closed successfully ✅")
+    return redirect('dashboard')
 
 # ==================================================
 # ADD BUG
 # ==================================================
 @login_required
 def add_bug(request):
-    if request.method == "POST":
-        form = BugForm(request.POST)
-        if form.is_valid():
-            bug = form.save(commit=False)
-            bug.reported_by = request.user
-            bug.save()
-            messages.success(request, "Bug reported successfully")
-            return redirect('dashboard')
-    else:
-        form = BugForm()
+    form = BugForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        bug = form.save(commit=False)
+
+        # ✅ Reporter
+        bug.reported_by = request.user
+
+        # 🔥 AUTO ASSIGN TO ANY DEVELOPER
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        developer = User.objects.filter(role='developer').first()
+
+        if developer:
+            bug.assigned_to = developer
+        else:
+            bug.assigned_to = request.user  # fallback
+
+        bug.save()
+
+        messages.success(request, "Bug reported & assigned successfully ✅")
+        return redirect('dashboard')
 
     return render(request, 'core/add_bug.html', {'form': form})
-
 
 # ==================================================
 # BUG LIST
@@ -142,14 +243,12 @@ def bug_list(request):
 
     bugs = Bug.objects.all().order_by('-id')
 
-    # 🔍 SEARCH
     if query:
         bugs = bugs.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query)
         )
 
-    # 🎯 FILTER
     if status:
         bugs = bugs.filter(status=status)
 
@@ -159,21 +258,16 @@ def bug_list(request):
         'status': status
     })
 
+
 # ==================================================
 # HOME
 # ==================================================
 def home(request):
-    context = {
-        'total_bugs': Bug.objects.count(),
-        'open_bugs': Bug.objects.filter(status='open').count(),
-        'progress_bugs': Bug.objects.filter(status='in_progress').count(),
-        'closed_bugs': Bug.objects.filter(status='closed').count()
-    }
-    return render(request, 'core/home.html', context)
+    return render(request, 'core/home.html')
 
 
 # ==================================================
-# ADD USER
+# USER MANAGEMENT
 # ==================================================
 @login_required
 def add_user(request):
@@ -203,33 +297,12 @@ def add_user(request):
     return render(request, 'core/add_user.html')
 
 
-# ==================================================
-# USER LIST (WITH SEARCH 🔥)
-# ==================================================
 @login_required
 def user_list(request):
-    query = request.GET.get('q')
-
     users = User.objects.all().order_by('-id')
-
-    if query:
-        users = users.filter(
-            Q(username__icontains=query) |
-            Q(email__icontains=query) |
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(phone__icontains=query)
-        )
-
-    return render(request, 'core/user_list.html', {
-        'users': users,
-        'query': query
-    })
+    return render(request, 'core/user_list.html', {'users': users})
 
 
-# ==================================================
-# DELETE USER
-# ==================================================
 @login_required
 def delete_user(request, id):
     user = get_object_or_404(User, id=id)
@@ -238,18 +311,12 @@ def delete_user(request, id):
     return redirect('user_list')
 
 
-# ==================================================
-# VIEW USER
-# ==================================================
 @login_required
 def view_user(request, id):
     user = get_object_or_404(User, id=id)
     return render(request, 'core/view_user.html', {'user': user})
 
 
-# ==================================================
-# EDIT USER
-# ==================================================
 @login_required
 def edit_user(request, id):
     user = get_object_or_404(User, id=id)
@@ -274,16 +341,32 @@ def edit_user(request, id):
 
 
 # ==================================================
-# USER REPORT
+# CHANGE PASSWORD
 # ==================================================
 @login_required
-def user_report(request):
-    users = User.objects.all().order_by('-id')
-    return render(request, 'core/user_report.html', {'users': users})
+@admin_only
+def change_password(request, id):
+    user = get_object_or_404(User, id=id)
+
+    if request.method == "POST":
+        password = request.POST.get('password')
+        confirm = request.POST.get('confirm_password')
+
+        if password != confirm:
+            messages.error(request, "Passwords do not match ❌")
+            return redirect('change_password', id=id)
+
+        user.set_password(password)
+        user.save()
+
+        messages.success(request, "Password updated successfully ✅")
+        return redirect('user_list')
+
+    return render(request, 'core/change_password.html', {'user': user})
 
 
 # ==================================================
-# EXPORT EXCEL
+# EXPORT USERS EXCEL
 # ==================================================
 @login_required
 def export_users_excel(request):
@@ -291,9 +374,7 @@ def export_users_excel(request):
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Users"
-
-    ws.append(['ID', 'Name', 'Email', 'Phone', 'Role', 'DOB'])
+    ws.append(['ID', 'Name', 'Email', 'Phone', 'Role'])
 
     for user in users:
         ws.append([
@@ -301,21 +382,18 @@ def export_users_excel(request):
             f"{user.first_name} {user.last_name}",
             user.email,
             user.phone,
-            user.role,
-            str(user.dob)
+            user.role
         ])
 
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+    response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=users.xlsx'
-
     wb.save(response)
+
     return response
 
 
 # ==================================================
-# EXPORT PDF
+# EXPORT USERS PDF
 # ==================================================
 @login_required
 def export_users_pdf(request):
@@ -328,79 +406,42 @@ def export_users_pdf(request):
 
     y = 800
     for user in users:
-        text = f"{user.id} | {user.first_name} {user.last_name} | {user.email} | {user.role}"
-        p.drawString(30, y, text)
+        p.drawString(30, y, f"{user.id} | {user.email} | {user.role}")
         y -= 20
-
-        if y < 50:
-            p.showPage()
-            y = 800
 
     p.save()
     return response
 
 
 # ==================================================
-# CHANGE PASSWORD (ADMIN ONLY 🔐)
-# ==================================================
-@login_required
-@admin_only
-def change_password(request, id):
-    user = get_object_or_404(User, id=id)
-
-    if request.method == "POST":
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match ❌")
-            return redirect('change_password', id=id)
-
-        user.password = make_password(password)
-        user.save()
-
-        messages.success(request, "Password updated successfully ✅")
-        return redirect('user_list')
-
-    return render(request, 'core/change_password.html', {'user': user})
-
-# ==========================================
 # EXPORT BUGS EXCEL
-# ==========================================
+# ==================================================
 @login_required
 def export_bugs_excel(request):
     bugs = Bug.objects.all()
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Bugs"
+    ws.append(['ID', 'Title', 'Priority', 'Status'])
 
-    # HEADER
-    ws.append(['ID', 'Title', 'Project', 'Priority', 'Status', 'Assigned To'])
-
-    # DATA
     for bug in bugs:
         ws.append([
             bug.id,
             bug.title,
-            str(bug.project),
             bug.priority,
-            bug.status,
-            str(bug.assigned_to)
+            bug.status
         ])
 
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+    response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=bugs.xlsx'
-
     wb.save(response)
+
     return response
 
 
-# ==========================================
+# ==================================================
 # EXPORT BUGS PDF
-# ==========================================
+# ==================================================
 @login_required
 def export_bugs_pdf(request):
     bugs = Bug.objects.all()
@@ -411,10 +452,8 @@ def export_bugs_pdf(request):
     p = canvas.Canvas(response)
 
     y = 800
-    p.setFont("Helvetica", 10)
-
     for bug in bugs:
-        text = f"{bug.id} | {bug.title} | {bug.priority} | {bug.status}"
+        text = f"{bug.id} | {bug.title} | {bug.status}"
         p.drawString(30, y, text)
         y -= 20
 
@@ -424,3 +463,12 @@ def export_bugs_pdf(request):
 
     p.save()
     return response
+
+
+# ==================================================
+# USER REPORT
+# ==================================================
+@login_required
+def user_report(request):
+    users = User.objects.all().order_by('-id')
+    return render(request, 'core/user_report.html', {'users': users})
