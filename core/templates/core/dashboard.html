@@ -3,10 +3,11 @@
 
 {% block content %}
 
-<style>
 
+<style>
 body{
-    background:#f5f7fb;
+    background: linear-gradient(to right, #eef2ff, #f8fafc);
+    font-family: 'Segoe UI', sans-serif;
 }
 
 /* HEADER */
@@ -17,17 +18,6 @@ body{
     margin-bottom:30px;
 }
 
-.dashboard-header h2{
-    font-weight:600;
-}
-
-/* BUTTON */
-.btn-primary{
-    background:#3b82f6;
-    border:none;
-    border-radius:8px;
-}
-
 /* CARDS */
 .cards{
     display:grid;
@@ -36,15 +26,14 @@ body{
 }
 
 .card-box{
-    background:white;
+    background: linear-gradient(135deg,#ffffff,#f1f5f9);
     padding:20px;
-    border-radius:12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
     transition:0.3s;
 }
-
 .card-box:hover{
-    transform:translateY(-6px);
+    transform:translateY(-8px) scale(1.02);
 }
 
 .card-title{
@@ -53,164 +42,243 @@ body{
 }
 
 .card-value{
-    font-size:30px;
+    font-size:32px;
     font-weight:bold;
 }
 
 /* COLORS */
-.red{border-left:5px solid #ef4444;}
-.blue{border-left:5px solid #3b82f6;}
-.yellow{border-left:5px solid #f59e0b;}
-.green{border-left:5px solid #22c55e;}
+.red{border-left:6px solid #ef4444;}
+.blue{border-left:6px solid #3b82f6;}
+.yellow{border-left:6px solid #f59e0b;}
+.green{border-left:6px solid #22c55e;}
 
-/* CHART + BOX */
-.chart-container{
+/* CONTAINERS */
+.chart-container, .table-container{
     background:white;
     padding:25px;
-    border-radius:12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-    height:100%;
-}
-
-/* LIMIT CHART SIZE */
-#bugChart{
-    max-height:280px;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
 }
 
 /* TABLE */
-.table-container{
-    margin-top:30px;
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+.table{
+    border-radius:10px;
+    overflow:hidden;
+}
+.table th{
+    background:#f1f5f9;
+}
+.table td, .table th{
+    vertical-align:middle;
 }
 
+/* BUTTONS */
+.btn{
+    border-radius:10px !important;
+    font-size:13px;
+    padding:6px 12px;
+    transition:0.2s;
+}
+.btn:hover{
+    transform:scale(1.05);
+}
+
+/* BADGES */
 .badge{
     padding:6px 12px;
     border-radius:20px;
     font-size:12px;
     font-weight:500;
 }
-
 .badge-open{background:#dbeafe;color:#1d4ed8;}
 .badge-progress{background:#fef3c7;color:#b45309;}
 .badge-closed{background:#dcfce7;color:#15803d;}
 
-</style><!-- HEADER --><div class="dashboard-header">
+/* SEARCH */
+input, select{
+    border-radius:10px !important;
+    box-shadow:none !important;
+}
+
+/* PAGINATION */
+.pagination .page-link{
+    border-radius:8px !important;
+    margin:0 3px;
+}
+</style>
+
+<!-- HEADER -->
+<div class="dashboard-header">
     <h2>Dashboard</h2>
+    <p><strong>Logged in as:</strong> {{ request.user.email }} ({{ request.user.role }})</p>
+    {% if request.user.role == 'tester' or request.user.role == 'admin' %}
     <a href="{% url 'add_bug' %}" class="btn btn-primary">+ Report Bug</a>
-</div><!-- CARDS --><div class="cards"><div class="card-box red">
-    <div class="card-title">Total Bugs</div>
-    <div class="card-value">{{ total_bugs }}</div>
+{% endif %}
 </div>
 
-<div class="card-box blue">
-    <div class="card-title">Open Bugs</div>
-    <div class="card-value">{{ open_bugs }}</div>
+
+<!-- CARDS -->
+<div class="cards">
+
+    <div class="card-box red">
+        <div class="card-title">Total Bugs</div>
+        <div class="card-value">{{ total_bugs|default:0 }}</div>
+    </div>
+
+    <div class="card-box blue">
+        <div class="card-title">Open Bugs</div>
+        <div class="card-value">{{ open_bugs|default:0 }}</div>
+    </div>
+
+    <div class="card-box yellow">
+        <div class="card-title">In Progress</div>
+        <div class="card-value">{{ progress_bugs|default:0 }}</div>
+    </div>
+
+    <div class="card-box green">
+        <div class="card-title">Closed Bugs</div>
+        <div class="card-value">{{ closed_bugs|default:0 }}</div>
+    </div>
+
 </div>
 
-<div class="card-box yellow">
-    <div class="card-title">In Progress</div>
-    <div class="card-value">{{ progress_bugs }}</div>
-</div>
+<hr style="margin:35px 0;">
 
-<div class="card-box green">
-    <div class="card-title">Closed Bugs</div>
-    <div class="card-value">{{ closed_bugs }}</div>
-</div>
 
-</div><hr style="margin:35px 0;"><!-- CHART + SUMMARY --><div class="row g-4"><!-- CHART -->
+<!-- CHART + SUMMARY -->
+<div class="row g-4">
+
 <div class="col-md-6">
     <div class="chart-container text-center">
         <h5>Bug Status Overview</h5>
-        <div style="max-width:300px; margin:auto;">
-            <canvas id="bugChart"></canvas>
-        </div>
+        <canvas id="bugChart"></canvas>
     </div>
 </div>
 
-<!-- SUMMARY -->
 <div class="col-md-6">
     <div class="chart-container">
         <h5>Quick Summary</h5>
         <hr>
-        <p>Total Bugs: <b>{{ total_bugs }}</b></p>
-        <p>Open Bugs: <b style="color:#3b82f6;">{{ open_bugs }}</b></p>
-        <p>In Progress: <b style="color:#f59e0b;">{{ progress_bugs }}</b></p>
-        <p>Closed Bugs: <b style="color:#22c55e;">{{ closed_bugs }}</b></p>
+        <p>Total: <b>{{ total_bugs }}</b></p>
+        <p>Open: <b style="color:#3b82f6;">{{ open_bugs }}</b></p>
+        <p>Progress: <b style="color:#f59e0b;">{{ progress_bugs }}</b></p>
+        <p>Closed: <b style="color:#22c55e;">{{ closed_bugs }}</b></p>
     </div>
 </div>
 
-</div><!-- TABLE --><div class="table-container"><h5>Latest Bugs 🔥</h5>
-<p style="color:#64748b;">Recent activity in your system</p>
+</div>
+
+
+<!-- TABLE -->
+<div class="table-container mt-4">
+
+<h5>Latest Bugs 🔥</h5>
 
 <table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Assigned</th>
-        </tr>
-    </thead>
+<thead>
+<tr>
+<th>Title</th>
+<th>Status</th>
+<th>Priority</th>
+<th>Assigned</th>
+<th>Action</th> <!-- ✅ ADDED -->
+</tr>
+</thead>
 
-    <tbody>
+<tbody>
 
-    {% for bug in open_bug_list %}
-    <tr>
-        <td>{{ bug.title }}</td>
-        <td><span class="badge badge-open">Open</span></td>
-        <td>{{ bug.priority }}</td>
-        <td>{{ bug.assigned_to }}</td>
-    </tr>
-    {% endfor %}
+{% for bug in bugs %}
+<tr>
+<td>{{ bug.title }}</td>
 
-    {% for bug in progress_bug_list %}
-    <tr>
-        <td>{{ bug.title }}</td>
-        <td><span class="badge badge-progress">In Progress</span></td>
-        <td>{{ bug.priority }}</td>
-        <td>{{ bug.assigned_to }}</td>
-    </tr>
-    {% endfor %}
+<td>
+{% if bug.status == 'open' %}
+<span class="badge badge-open">Open</span>
+{% elif bug.status == 'in_progress' %}
+<span class="badge badge-progress">In Progress</span>
+{% else %}
+<span class="badge badge-closed">Closed</span>
+{% endif %}
+</td>
 
-    {% for bug in closed_bug_list %}
-    <tr>
-        <td>{{ bug.title }}</td>
-        <td><span class="badge badge-closed">Closed</span></td>
-        <td>{{ bug.priority }}</td>
-        <td>{{ bug.assigned_to }}</td>
-    </tr>
-    {% endfor %}
+<td>{{ bug.priority }}</td>
+<td>{{ bug.assigned_to }}</td>
+<td>
 
-    </tbody>
+{% if role == 'admin' or role == 'manager' %}
+    <a href="{% url 'edit_bug' bug.id %}" 
+       class="btn btn-warning btn-sm">Edit</a>
+
+    <a href="{% url 'delete_bug' bug.id %}" 
+       onclick="return confirm('Are you sure to delete this bug?')" 
+       class="btn btn-danger btn-sm">Delete</a>
+{% endif %}
+
+{% if bug.status == 'open' %}
+    <a href="{% url 'change_status' bug.id 'in_progress' %}" 
+       onclick="return confirm('Start this bug?')" 
+       class="btn btn-info btn-sm">Start</a>
+
+{% elif bug.status == 'in_progress' %}
+    <a href="{% url 'change_status' bug.id 'closed' %}" 
+       onclick="return confirm('Close this bug?')" 
+       class="btn btn-success btn-sm">Close</a>
+{% endif %}
+
+</td>
+
+
+</tr>
+{% empty %}
+<tr>
+<td colspan="5" class="text-center text-muted">No Bugs 😔</td> <!-- ✅ updated -->
+</tr>
+{% endfor %}
+
+</tbody>
 </table>
 
-</div><!-- CHART JS --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
-const ctx = document.getElementById('bugChart').getContext('2d');
+</div>
 
-const openBugs = Number("{{ open_bugs }}") || 0;
-const progressBugs = Number("{{ progress_bugs }}") || 0;
-const closedBugs = Number("{{ closed_bugs }}") || 0;
 
-new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Open', 'In Progress', 'Closed'],
-        datasets: [{
-            data: [openBugs, progressBugs, closedBugs],
-            backgroundColor: ['#3b82f6','#f59e0b','#22c55e']
-        }]
-    },
-    options: {
-        plugins: {
-            legend: {
-                position: 'bottom'
+<!-- ✅ SAFE JSON DATA (NO RED ERROR) -->
+{{ open_bugs|json_script:"openData" }}
+{{ progress_bugs|json_script:"progressData" }}
+{{ closed_bugs|json_script:"closedData" }}
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const openBugs = JSON.parse(document.getElementById('openData').textContent);
+const progressBugs = JSON.parse(document.getElementById('progressData').textContent);
+const closedBugs = JSON.parse(document.getElementById('closedData').textContent);
+
+const ctx = document.getElementById('bugChart');
+
+if(openBugs + progressBugs + closedBugs > 0){
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Open', 'In Progress', 'Closed'],
+            datasets: [{
+                data: [openBugs, progressBugs, closedBugs],
+                backgroundColor: ['#3b82f6','#f59e0b','#22c55e'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive:true,
+            plugins:{
+                legend:{position:'bottom'}
             }
         }
-    }
-});
+    });
+
+}else{
+    ctx.parentElement.innerHTML = "<p style='color:#64748b'>No data available 📊</p>";
+}
 </script>
 
 {% endblock %}
