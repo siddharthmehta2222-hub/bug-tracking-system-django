@@ -1,25 +1,103 @@
-<!DOCTYPE html>
+{% extends 'core/base.html' %}
 
-<html>
-<head>
-    <title>Signup</title>
-</head>
+{% block content %}
 
-<body>
+<style>
+.signup-card{
+    max-width:500px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+}
 
-<h2>Create Account</h2>
+.form-control{
+    border-radius:8px;
+}
 
-<form method="POST">
+.btn-primary{
+    border-radius:8px;
+}
 
-```
-{% csrf_token %}
+.title{
+    font-weight:600;
+}
+</style>
 
-{{ form.as_p }}
+<div class="container mt-5">
 
-<button type="submit">Register</button>
-```
+    <div class="signup-card">
 
-</form>
+        <h3 class="text-center mb-4 title">Create Account 🚀</h3>
 
-</body>
-</html>
+        <!-- 🔴 FORM ERRORS (VERY IMPORTANT) -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <!-- ✅ SUCCESS MESSAGES -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- ✅ USERNAME -->
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <!-- ROLE -->
+            <div class="mb-3">
+                <label>Role</label>
+                <select name="role" class="form-control">
+                    <option value="tester">Tester</option>
+                    <option value="developer">Developer</option>
+                    <option value="manager">Manager</option>
+                </select>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password1" class="form-control" required>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="mb-3">
+                <label>Confirm Password</label>
+                <input type="password" name="password2" class="form-control" required>
+            </div>
+
+            <button class="btn btn-primary w-100">
+                Register
+            </button>
+
+        </form>
+
+        <!-- LOGIN LINK -->
+        <div class="text-center mt-3">
+            Already have an account? 
+            <a href="{% url 'login' %}">Login</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

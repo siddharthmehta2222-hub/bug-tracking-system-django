@@ -1,272 +1,113 @@
-<!DOCTYPE html><html>
-<head><title>Login | Bug Tracking System</title><style>
+{% extends 'core/base.html' %}
+{% load static %}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Segoe UI',sans-serif;
-}
+{% block content %}
 
-/* BODY */
-
+<style>
 body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#0f172a,#1e40af,#2563eb);
-overflow:hidden;
+    background:#f5f7fb;
 }
 
-/* PARTICLES */
-
-.particle{
-position:absolute;
-width:6px;
-height:6px;
-background:white;
-border-radius:50%;
-opacity:0.4;
-animation:float 12s infinite linear;
+.auth-container{
+    max-width:450px;
+    margin:60px auto;
+    background:white;
+    padding:40px;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
 }
 
-@keyframes float{
-0%{
-transform:translateY(0);
-opacity:0;
-}
-50%{
-opacity:1;
-}
-100%{
-transform:translateY(-900px);
-opacity:0;
-}
+.auth-title{
+    text-align:center;
+    margin-bottom:30px;
 }
 
-/* HOME BUTTON */
-
-.home-btn{
-position:absolute;
-top:25px;
-left:25px;
-background:white;
-color:#1e40af;
-padding:9px 16px;
-border-radius:8px;
-text-decoration:none;
-font-weight:600;
-box-shadow:0 5px 15px rgba(0,0,0,0.3);
-transition:0.3s;
+.form-control{
+    height:45px;
+    border-radius:8px;
 }
 
-.home-btn:hover{
-transform:scale(1.05);
+.btn-custom{
+    background:linear-gradient(to right,#06b6d4,#3b82f6);
+    color:white;
+    border:none;
+    height:45px;
+    border-radius:8px;
+    font-weight:500;
 }
 
-/* LOGIN CARD */
-
-.login-container{
-position:relative;
-width:420px;
-background:rgba(255,255,255,0.15);
-backdrop-filter:blur(18px);
-border-radius:16px;
-padding:40px;
-box-shadow:0 30px 70px rgba(0,0,0,0.5);
-color:white;
-text-align:center;
-animation:fadeIn 1s ease;
+.password-box{
+    position:relative;
 }
 
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(25px);}
-to{opacity:1;transform:translateY(0);}
+.eye-btn{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    font-size:18px;
+    color:#555;
 }
+</style>
 
-/* LOGO */
 
-.logo{
-font-size:22px;
-font-weight:bold;
-margin-bottom:15px;
-}
+<div class="auth-container">
 
-/* TITLE */
+    <div class="auth-title">
+        <h2>Login 🔐</h2>
+        <p class="text-muted">Welcome back!</p>
+    </div>
 
-.login-container h1{
-font-size:30px;
-margin-bottom:6px;
-}
+    <!-- MESSAGES -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-.subtitle{
-color:#e2e8f0;
-margin-bottom:30px;
-}
+    <form method="POST">
+        {% csrf_token %}
 
-/* INPUT GROUP */
+        <!-- ✅ USERNAME -->
+        <div class="mb-3">
+            <label>Username</label>
+            <input type="text" name="email" class="form-control" placeholder="Enter username" required>
+        </div>
 
-.input-group{
-margin-bottom:18px;
-text-align:left;
-}
+        <!-- ✅ PASSWORD -->
+        <div class="mb-3 password-box">
+            <label>Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
 
-.input-group label{
-font-size:14px;
-font-weight:500;
-}
+            <span class="eye-btn" onclick="togglePassword()">👁️</span>
+        </div>
 
-/* INPUT STYLE */
+        <!-- FORGOT -->
+        <div class="text-end mb-3">
+            <a href="#" style="font-size:13px;">Forgot Password?</a>
+        </div>
 
-.input-group input,
-.input-group select{
-width:100%;
-padding:12px;
-margin-top:6px;
-border:none;
-border-radius:7px;
-background:white;
-color:#111;
-outline:none;
-font-size:14px;
-transition:0.3s;
-}
+        <button type="submit" class="btn btn-custom w-100">Login</button>
 
-.input-group input:focus,
-.input-group select:focus{
-border:2px solid #3b82f6;
-box-shadow:0 0 10px rgba(59,130,246,0.5);
-}
+    </form>
 
-select option{
-color:black;
-}
+    <div class="text-center mt-3">
+        <p>Don't have an account? 
+            <a href="{% url 'signup' %}">Create Account</a>
+        </p>
+    </div>
 
-/* PASSWORD */
+</div>
 
-.password-wrapper{
-position:relative;
-}
 
-.eye{
-position:absolute;
-right:12px;
-top:40px;
-cursor:pointer;
-font-size:18px;
-color:#2563eb;
-}
-
-/* FORGOT */
-
-.forgot{
-text-align:right;
-font-size:13px;
-margin-top:6px;
-}
-
-.forgot a{
-color:#bfdbfe;
-text-decoration:none;
-}
-
-/* LOGIN BUTTON */
-
-.login-btn{
-width:100%;
-padding:13px;
-margin-top:16px;
-border:none;
-border-radius:7px;
-background:#3b82f6;
-color:white;
-font-size:16px;
-cursor:pointer;
-transition:0.3s;
-font-weight:600;
-}
-
-.login-btn:hover{
-background:#2563eb;
-transform:scale(1.04);
-box-shadow:0 12px 30px rgba(0,0,0,0.35);
-}
-
-/* LOADING */
-
-.loading{
-display:none;
-margin-top:10px;
-font-size:14px;
-color:#dbeafe;
-}
-
-/* EXTRA */
-
-.extra{
-margin-top:18px;
-font-size:14px;
-}
-
-.extra a{
-color:#93c5fd;
-text-decoration:none;
-}
-
-</style></head><body><a href="/" class="home-btn">🏠 Home</a>
-
-<!-- PARTICLES --><div class="particle" style="left:20%;animation-delay:0s"></div>
-<div class="particle" style="left:40%;animation-delay:2s"></div>
-<div class="particle" style="left:60%;animation-delay:4s"></div>
-<div class="particle" style="left:80%;animation-delay:6s"></div><!-- LOGIN CARD --><div class="login-container"><div class="logo">🐞 Bug Tracking System</div><h1>Login</h1>
-<p class="subtitle">Access your dashboard</p>{% if messages %}
-{% for message in messages %}
-
-<p style="color:#fca5a5">{{message}}</p>
-{% endfor %}
-{% endif %}<form method="POST" onsubmit="showLoading()">{% csrf_token %}
-
-<div class="input-group">
-<label>Email</label>
-<input type="email" name="email" placeholder="Enter email" required>
-</div><div class="input-group password-wrapper">
-<label>Password</label>
-<input type="password" id="password" name="password" placeholder="Enter password" required>
-<span class="eye" onclick="togglePassword()">👁</span><div class="forgot">
-<a href="#">Forgot password?</a>
-</div></div><div class="input-group">
-<label>Select Role</label>
-<select name="role" required>
-<option value="">Select Role</option>
-<option value="tester">Tester</option>
-<option value="developer">Developer</option>
-<option value="manager">Manager</option>
-<option value="admin">Admin</option>
-</select>
-</div><button class="login-btn">Login</button>
-
-<div class="loading" id="loading">
-Logging in...
-</div></form><div class="extra">
-<p>Don't have an account? <a href="/signup/">Create Account</a></p>
-</div></div><script>
-
+<script>
 function togglePassword(){
-
-var x=document.getElementById("password");
-
-if(x.type==="password"){
-x.type="text";
-}else{
-x.type="password";
+    const password = document.getElementById("password");
+    password.type = password.type === "password" ? "text" : "password";
 }
+</script>
 
-}
-
-function showLoading(){
-document.getElementById("loading").style.display="block";
-}
-
-</script></body>
-</html>
+{% endblock %}
