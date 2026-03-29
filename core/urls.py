@@ -49,4 +49,7 @@ urlpatterns = [
     path('bug/edit/<int:id>/', views.edit_bug, name='edit_bug'),
     path('bug/status/<int:id>/<str:status>/', views.change_status, name='change_status'),
     path('bug/delete/<int:id>/', views.delete_bug, name='delete_bug'),
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact')
+
 ]

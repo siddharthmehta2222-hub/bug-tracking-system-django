@@ -54,6 +54,7 @@ def userSignupView(request):
 # LOGIN
 # ==================================================
 def loginView(request):
+    next_url = request.GET.get('next')
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
@@ -472,3 +473,16 @@ def export_bugs_pdf(request):
 def user_report(request):
     users = User.objects.all().order_by('-id')
     return render(request, 'core/user_report.html', {'users': users})
+
+# ==================================================
+# ABOUT PAGE
+# ==================================================
+def about(request):
+    return render(request, 'core/about.html')
+
+
+# ==================================================
+# CONTACT PAGE
+# ==================================================
+def contact(request):
+    return render(request, 'core/contact.html')

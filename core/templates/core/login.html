@@ -49,65 +49,50 @@ body{
     font-size:18px;
     color:#555;
 }
-</style>
-
-
-<div class="auth-container">
-
-    <div class="auth-title">
-        <h2>Login 🔐</h2>
-        <p class="text-muted">Welcome back!</p>
-    </div>
-
-    <!-- MESSAGES -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-danger">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-
-        <!-- ✅ USERNAME -->
-        <div class="mb-3">
-            <label>Username</label>
-            <input type="text" name="email" class="form-control" placeholder="Enter username" required>
-        </div>
-
-        <!-- ✅ PASSWORD -->
-        <div class="mb-3 password-box">
-            <label>Password</label>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
-
-            <span class="eye-btn" onclick="togglePassword()">👁️</span>
-        </div>
-
-        <!-- FORGOT -->
-        <div class="text-end mb-3">
-            <a href="#" style="font-size:13px;">Forgot Password?</a>
-        </div>
-
-        <button type="submit" class="btn btn-custom w-100">Login</button>
-
-    </form>
-
-    <div class="text-center mt-3">
-        <p>Don't have an account? 
-            <a href="{% url 'signup' %}">Create Account</a>
-        </p>
-    </div>
-
+</style><div class="auth-container"><div class="auth-title">
+    <h2>Login 🔐</h2>
+    <p class="text-muted">Welcome back!</p>
 </div>
 
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 
-<script>
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label>Username</label>
+        <input type="text" name="email" class="form-control" placeholder="Enter username" required>
+    </div>
+
+    <div class="mb-3 password-box">
+        <label>Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+        <span class="eye-btn" onclick="togglePassword()">👁️</span>
+    </div>
+
+    <div class="text-end mb-3">
+        <a href="#" style="font-size:13px;">Forgot Password?</a>
+    </div>
+
+    <button type="submit" class="btn btn-custom w-100">Login</button>
+
+</form>
+
+<div class="text-center mt-3">
+    <p>Don't have an account? 
+        <a href="{% url 'signup' %}">Create Account</a>
+    </p>
+</div>
+
+</div><script>
 function togglePassword(){
     const password = document.getElementById("password");
     password.type = password.type === "password" ? "text" : "password";
 }
-</script>
-
-{% endblock %}
+</script>{% endblock %}
