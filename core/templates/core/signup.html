@@ -1,103 +1,248 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block content %}
 
 <style>
-.signup-card{
-    max-width:500px;
-    margin:auto;
+
+/* REMOVE BASE */
+.navbar, .top-bar, .footer{
+    display:none !important;
+}
+
+.container{
+    max-width:100% !important;
+    width:100% !important;
+    padding:0 !important;
+    margin:0 !important;
+}
+
+/* 🔥 FIX HEIGHT + SCROLL ISSUE */
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:'Segoe UI', sans-serif;
+}
+
+/* WRAPPER */
+.login-wrapper{
+    display:flex;
+    height:100vh;
+    width:100%;
+}
+
+/* LEFT PANEL */
+.left-panel{
+    width:50%;
+    height:100vh;
+    background: linear-gradient(135deg,#4c1d95 0%, #6d28d9 40%, #c026d3 100%);
+    color:white;
+    padding:70px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    position:relative;
+}
+
+.left-panel::before{
+    content:'';
+    position:absolute;
+    width:600px;
+    height:600px;
+    background:rgba(255,255,255,0.07);
+    border-radius:50%;
+    bottom:-200px;
+    right:-200px;
+}
+
+.left-panel h1{
+    font-size:48px;
+    font-weight:700;
+}
+
+.left-panel p{
+    margin-top:10px;
+    opacity:0.9;
+}
+
+/* FEATURE */
+.feature-box{
+    margin-top:18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px;
+    border-radius:16px;
+    background: rgba(255,255,255,0.10);
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(20px);
+}
+
+/* HOME */
+.home-link{
+    margin-top:30px;
+}
+
+/* RIGHT PANEL */
+.right-panel{
+    width:50%;
+    height:100vh;
+    background:#f8fafc;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* CARD */
+.auth-card{
     background:white;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    padding:35px; /* 🔥 REDUCED */
+    border-radius:20px;
+    width:100%;
+    max-width:350px; /* 🔥 REDUCED */
+    box-shadow:0 25px 60px rgba(0,0,0,0.15);
+    text-align:center;
 }
 
+/* ICON */
+.icon-box{
+    width:60px;
+    height:60px;
+    background:linear-gradient(135deg,#6d28d9,#c026d3);
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:22px;
+    margin:auto;
+    margin-bottom:10px;
+}
+
+/* INPUT */
 .form-control{
-    border-radius:8px;
+    height:44px; /* 🔥 REDUCED */
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    font-size:14px;
 }
 
-.btn-primary{
-    border-radius:8px;
+/* PASSWORD */
+.password-box{
+    position:relative;
 }
 
-.title{
-    font-weight:600;
+.eye-btn{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
 }
+
+/* BUTTON */
+.btn-custom{
+    background:linear-gradient(to right,#6d28d9,#c026d3);
+    color:white;
+    border:none;
+    height:44px;
+    border-radius:10px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    body{overflow:auto;}
+    .login-wrapper{
+        flex-direction:column;
+        height:auto;
+    }
+    .left-panel,.right-panel{
+        width:100%;
+        height:auto;
+    }
+}
+
 </style>
 
-<div class="container mt-5">
+<div class="login-wrapper">
 
-    <div class="signup-card">
+    <!-- LEFT -->
+    <div class="left-panel">
 
-        <h3 class="text-center mb-4 title">Create Account 🚀</h3>
+        <h1>Welcome Back</h1>
+        <p>Your trusted Bug Tracking System</p>
 
-        <!-- 🔴 FORM ERRORS (VERY IMPORTANT) -->
-        {% if form.errors %}
-            <div class="alert alert-danger">
-                {{ form.errors }}
-            </div>
-        {% endif %}
+        <div class="feature-box">✔ Manage Bugs Efficiently</div>
+        <div class="feature-box">✔ Role-Based Access</div>
+        <div class="feature-box">✔ Dashboard Analytics</div>
 
-        <!-- ✅ SUCCESS MESSAGES -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success">
-                    {{ message }}
+        <div class="home-link">
+            <a href="{% url 'home' %}" style="color:white;">← Back to Home</a>
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+
+        <div class="auth-card">
+
+            <div class="icon-box">⚡</div>
+
+            <h4>Signup</h4>
+            <p style="margin-bottom:15px;">Create your account</p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-2 text-start">
+                    <input type="text" name="username" placeholder="Username" class="form-control" required>
                 </div>
-            {% endfor %}
-        {% endif %}
 
-        <form method="POST">
-            {% csrf_token %}
+                <div class="mb-2 text-start">
+                    <input type="email" name="email" placeholder="Email Address" class="form-control" required>
+                </div>
 
-            <!-- ✅ USERNAME -->
-            <div class="mb-3">
-                <label>Username</label>
-                <input type="text" name="username" class="form-control" required>
+                <div class="mb-2 text-start">
+                    <select name="role" class="form-control">
+                        <option value="tester">Tester</option>
+                        <option value="developer">Developer</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+
+                <div class="mb-2 password-box text-start">
+                    <input type="password" id="password1" name="password1" placeholder="Password" class="form-control" required>
+                    <span class="eye-btn" onclick="togglePassword('password1')">👁️</span>
+                </div>
+
+                <div class="mb-2 password-box text-start">
+                    <input type="password" id="password2" name="password2" placeholder="Confirm Password" class="form-control" required>
+                    <span class="eye-btn" onclick="togglePassword('password2')">👁️</span>
+                </div>
+
+                <button type="submit" class="btn btn-custom w-100">
+                    Sign Up →
+                </button>
+
+            </form>
+
+            <div style="margin-top:10px; font-size:13px;">
+                Already have an account?
+                <a href="{% url 'login' %}">Login</a>
             </div>
 
-            <!-- EMAIL -->
-            <div class="mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
-
-            <!-- ROLE -->
-            <div class="mb-3">
-                <label>Role</label>
-                <select name="role" class="form-control">
-                    <option value="tester">Tester</option>
-                    <option value="developer">Developer</option>
-                    <option value="manager">Manager</option>
-                </select>
-            </div>
-
-            <!-- PASSWORD -->
-            <div class="mb-3">
-                <label>Password</label>
-                <input type="password" name="password1" class="form-control" required>
-            </div>
-
-            <!-- CONFIRM PASSWORD -->
-            <div class="mb-3">
-                <label>Confirm Password</label>
-                <input type="password" name="password2" class="form-control" required>
-            </div>
-
-            <button class="btn btn-primary w-100">
-                Register
-            </button>
-
-        </form>
-
-        <!-- LOGIN LINK -->
-        <div class="text-center mt-3">
-            Already have an account? 
-            <a href="{% url 'login' %}">Login</a>
         </div>
 
     </div>
 
 </div>
+
+<script>
+function togglePassword(id){
+    const field = document.getElementById(id);
+    field.type = field.type === "password" ? "text" : "password";
+}
+</script>
 
 {% endblock %}

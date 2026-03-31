@@ -1,19 +1,139 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Bug</title>
-</head>
-<body>
+{% extends 'core/base.html' %}
+{% block content %}
 
-<h2>Add New Bug</h2>
+<style>
+.container-box{
+    max-width:900px;
+    margin:40px auto;
+    background:white;
+    padding:35px;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
 
-<form method="POST">
-    {% csrf_token %}
-    
-    {{ form.as_p }}
+/* TITLE STYLE */
+.top-badge{
+    display:inline-block;
+    background:#e6f0ff;
+    color:#2563eb;
+    padding:5px 15px;
+    border-radius:20px;
+    font-size:12px;
+    margin-bottom:10px;
+}
 
-    <button type="submit">Submit Bug</button>
-</form>
+.title-main{
+    color:#2563eb;
+    font-weight:600;
+    margin-bottom:25px;
+}
 
-</body>
-</html>
+/* INPUT */
+.form-control{
+    height:45px;
+    border-radius:6px;
+}
+
+textarea.form-control{
+    height:100px;
+}
+
+/* BUTTON */
+.btn-submit{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 30px;
+    border-radius:6px;
+}
+
+.btn-submit:hover{
+    background:#1d4ed8;
+}
+</style>
+
+<div class="container">
+
+    <div class="container-box">
+
+        <div class="text-center">
+            <div class="top-badge">ADD NEW BUG</div>
+            <h3 class="title-main">Add New Bug</h3>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- BUG NAME -->
+            <div class="mb-3">
+                <label>Bug Name</label>
+                <input type="text" name="title" class="form-control" placeholder="Bug Name" required>
+            </div>
+
+            <!-- PROJECT -->
+            <div class="mb-3">
+                <label>Project</label>
+                <input type="text" name="project" class="form-control" placeholder="Select Project" required>
+            </div>
+
+            <!-- TESTER CODE (FIXED) -->
+            <div class="mb-3">
+                <label>Tester Code</label>
+                <input type="text" name="tester_code" class="form-control" placeholder="Tester Code" value="{{ request.user.username }}">
+            </div>
+
+            <!-- BUG DATE -->
+            <div class="mb-3">
+                <label>Bug Date</label>
+                <input type="date" name="bug_date" class="form-control" required>
+            </div>
+
+            <!-- BUG LEVEL -->
+            <div class="mb-3">
+                <label>Bug Level</label>
+                <input type="text" name="bug_level" class="form-control" placeholder="Bug Level">
+            </div>
+
+            <!-- PRIORITY -->
+            <div class="mb-3">
+                <label>Bug Priority</label>
+                <select name="priority" class="form-control">
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                </select>
+            </div>
+
+            <!-- BUG TYPE -->
+            <div class="mb-3">
+                <label>Bug Type</label>
+                <input type="text" name="bug_type" class="form-control" placeholder="Bug Type">
+            </div>
+
+            <!-- STATUS -->
+            <div class="mb-3">
+                <label>Status</label>
+                <select name="status" class="form-control">
+                    <option>Open</option>
+                    <option>In Progress</option>
+                    <option>Closed</option>
+                </select>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="mb-3">
+                <label>Description</label>
+                <textarea name="description" class="form-control" placeholder="Description"></textarea>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn-submit">Submit</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponse
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
+from .models import Project
 
 from .models import Bug
 from .forms import BugForm, UserSignupForm
@@ -206,34 +207,48 @@ def close_bug(request, id):
 # ==================================================
 # ADD BUG
 # ==================================================
+
 @login_required
 def add_bug(request):
-    form = BugForm(request.POST or None)
 
-    if request.method == "POST" and form.is_valid():
-        bug = form.save(commit=False)
+    if request.method == "POST":
+        title = request.POST.get('bug_name') or "Untitled Bug"
+        project = request.POST.get('project')
+        tester_code = request.POST.get('tester_code')
+        bug_date = request.POST.get('bug_date')
+        bug_level = request.POST.get('bug_level')
+        bug_priority = request.POST.get('bug_priority') or "low"
+        bug_type = request.POST.get('bug_type')
+        description = request.POST.get('description')
+
+        # 🔥 CREATE BUG MANUALLY
+        bug = Bug.objects.create(
+            title=title,
+            description=description,
+            priority=bug_priority,
+            status='open',
+            project=project,
+        )
 
         # ✅ Reporter
         bug.reported_by = request.user
 
-        # 🔥 AUTO ASSIGN TO ANY DEVELOPER
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-
+        # 🔥 AUTO ASSIGN DEVELOPER
         developer = User.objects.filter(role='developer').first()
 
         if developer:
             bug.assigned_to = developer
         else:
-            bug.assigned_to = request.user  # fallback
+            bug.assigned_to = request.user
 
         bug.save()
 
-        messages.success(request, "Bug reported & assigned successfully ✅")
-        return redirect('dashboard')
+        messages.success(request, "Bug Added Successfully ✅")
 
-    return render(request, 'core/add_bug.html', {'form': form})
+        # 🔥 REDIRECT TO BUG REPORT PAGE
+        return redirect('bug_list')
 
+    return render(request, 'core/add_bug.html')
 # ==================================================
 # BUG LIST
 # ==================================================
