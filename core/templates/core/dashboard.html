@@ -3,7 +3,6 @@
 
 {% block content %}
 
-
 <style>
 body{
     background: linear-gradient(to right, #eef2ff, #f8fafc);
@@ -16,9 +15,11 @@ body{
     justify-content:space-between;
     align-items:center;
     margin-bottom:30px;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-/* CARDS */
+/* 🔥 PREMIUM CARDS */
 .cards{
     display:grid;
     grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
@@ -26,14 +27,28 @@ body{
 }
 
 .card-box{
-    background: linear-gradient(135deg,#ffffff,#f1f5f9);
-    padding:20px;
-    border-radius:16px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    padding:22px;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
     transition:0.3s;
+    position:relative;
+    overflow:hidden;
 }
+
+.card-box::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:5px;
+    height:100%;
+}
+
 .card-box:hover{
-    transform:translateY(-8px) scale(1.02);
+    transform:translateY(-10px) scale(1.03);
+    box-shadow:0 20px 40px rgba(0,0,0,0.12);
 }
 
 .card-title{
@@ -42,21 +57,31 @@ body{
 }
 
 .card-value{
-    font-size:32px;
+    font-size:34px;
     font-weight:bold;
 }
 
 /* COLORS */
-.red{border-left:6px solid #ef4444;}
-.blue{border-left:6px solid #3b82f6;}
-.yellow{border-left:6px solid #f59e0b;}
-.green{border-left:6px solid #22c55e;}
+.red::before{background:#ef4444;}
+.blue::before{background:#3b82f6;}
+.yellow::before{background:#f59e0b;}
+.green::before{background:#22c55e;}
+
+/* ICON */
+.card-icon{
+    position:absolute;
+    top:15px;
+    right:15px;
+    font-size:22px;
+    opacity:0.2;
+}
 
 /* CONTAINERS */
 .chart-container, .table-container{
-    background:white;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(8px);
     padding:25px;
-    border-radius:16px;
+    border-radius:18px;
     box-shadow:0 10px 25px rgba(0,0,0,0.08);
 }
 
@@ -80,7 +105,7 @@ body{
     transition:0.2s;
 }
 .btn:hover{
-    transform:scale(1.05);
+    transform:scale(1.08);
 }
 
 /* BADGES */
@@ -109,11 +134,19 @@ input, select{
 
 <!-- HEADER -->
 <div class="dashboard-header">
-    <h2>Dashboard</h2>
-    <p><strong>Logged in as:</strong> {{ request.user.email }} ({{ request.user.role }})</p>
+    <h2>Dashboard 🚀</h2>
+
+    <p>
+        <strong>Logged in as:</strong> 
+        <span style="color:#3b82f6;">{{ request.user.email }}</span> 
+        ({{ request.user.role }})
+    </p>
+
     {% if request.user.role == 'tester' or request.user.role == 'admin' %}
-    <a href="{% url 'add_bug' %}" class="btn btn-primary">+ Report Bug</a>
-{% endif %}
+    <a href="{% url 'add_bug' %}" class="btn btn-primary shadow">
+        + Report Bug
+    </a>
+    {% endif %}
 </div>
 
 
@@ -121,21 +154,25 @@ input, select{
 <div class="cards">
 
     <div class="card-box red">
+        <div class="card-icon">🐞</div>
         <div class="card-title">Total Bugs</div>
         <div class="card-value">{{ total_bugs|default:0 }}</div>
     </div>
 
     <div class="card-box blue">
+        <div class="card-icon">📂</div>
         <div class="card-title">Open Bugs</div>
         <div class="card-value">{{ open_bugs|default:0 }}</div>
     </div>
 
     <div class="card-box yellow">
+        <div class="card-icon">⚙️</div>
         <div class="card-title">In Progress</div>
         <div class="card-value">{{ progress_bugs|default:0 }}</div>
     </div>
 
     <div class="card-box green">
+        <div class="card-icon">✅</div>
         <div class="card-title">Closed Bugs</div>
         <div class="card-value">{{ closed_bugs|default:0 }}</div>
     </div>
@@ -150,14 +187,14 @@ input, select{
 
 <div class="col-md-6">
     <div class="chart-container text-center">
-        <h5>Bug Status Overview</h5>
+        <h5>Bug Status Overview 📊</h5>
         <canvas id="bugChart"></canvas>
     </div>
 </div>
 
 <div class="col-md-6">
     <div class="chart-container">
-        <h5>Quick Summary</h5>
+        <h5>Quick Summary ⚡</h5>
         <hr>
         <p>Total: <b>{{ total_bugs }}</b></p>
         <p>Open: <b style="color:#3b82f6;">{{ open_bugs }}</b></p>
@@ -174,6 +211,35 @@ input, select{
 
 <h5>Latest Bugs 🔥</h5>
 
+<!-- 🔥 NEW SEARCH + FILTER -->
+<form method="GET" class="row g-2 mb-3">
+
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control"
+               placeholder="Search bugs..."
+               value="{{ request.GET.search }}">
+    </div>
+
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Open</option>
+            <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+            <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">Filter</button>
+    </div>
+
+    <div class="col-md-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary w-100">Reset</a>
+    </div>
+
+</form>
+
+
 <table class="table table-hover">
 <thead>
 <tr>
@@ -181,7 +247,7 @@ input, select{
 <th>Status</th>
 <th>Priority</th>
 <th>Assigned</th>
-<th>Action</th> <!-- ✅ ADDED -->
+<th>Action</th>
 </tr>
 </thead>
 
@@ -206,8 +272,7 @@ input, select{
 <td>
 
 {% if role == 'admin' or role == 'manager' %}
-    <a href="{% url 'edit_bug' bug.id %}" 
-       class="btn btn-warning btn-sm">Edit</a>
+    <a href="{% url 'edit_bug' bug.id %}" class="btn btn-warning btn-sm">Edit</a>
 
     <a href="{% url 'delete_bug' bug.id %}" 
        onclick="return confirm('Are you sure to delete this bug?')" 
@@ -226,12 +291,11 @@ input, select{
 {% endif %}
 
 </td>
-
-
 </tr>
+
 {% empty %}
 <tr>
-<td colspan="5" class="text-center text-muted">No Bugs 😔</td> <!-- ✅ updated -->
+<td colspan="5" class="text-center text-muted">No Bugs 😔</td>
 </tr>
 {% endfor %}
 
@@ -241,11 +305,9 @@ input, select{
 </div>
 
 
-<!-- ✅ SAFE JSON DATA (NO RED ERROR) -->
 {{ open_bugs|json_script:"openData" }}
 {{ progress_bugs|json_script:"progressData" }}
 {{ closed_bugs|json_script:"closedData" }}
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -257,7 +319,6 @@ const closedBugs = JSON.parse(document.getElementById('closedData').textContent)
 const ctx = document.getElementById('bugChart');
 
 if(openBugs + progressBugs + closedBugs > 0){
-
     new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -275,7 +336,6 @@ if(openBugs + progressBugs + closedBugs > 0){
             }
         }
     });
-
 }else{
     ctx.parentElement.innerHTML = "<p style='color:#64748b'>No data available 📊</p>";
 }
