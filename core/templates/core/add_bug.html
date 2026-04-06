@@ -1,133 +1,240 @@
-{% extends 'core/base.html' %}
-{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Bug</title>
 
-<style>
-.container-box{
-    max-width:900px;
-    margin:40px auto;
-    background:white;
-    padding:35px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-/* TITLE STYLE */
-.top-badge{
-    display:inline-block;
-    background:#e6f0ff;
-    color:#2563eb;
-    padding:5px 15px;
-    border-radius:20px;
-    font-size:12px;
-    margin-bottom:10px;
-}
+    <style>
+        body {
+            background-color: #f5f7fb;
+        }
 
-.title-main{
-    color:#2563eb;
-    font-weight:600;
-    margin-bottom:25px;
-}
+        .top-bar {
+            background: #0d6efd;
+            color: white;
+            padding: 6px 0;
+            font-size: 14px;
+        }
 
-/* INPUT */
-.form-control{
-    height:45px;
-    border-radius:6px;
-}
+        .navbar {
+            background: white;
+        }
 
-textarea.form-control{
-    height:100px;
-}
+        /* 🔥 UPDATED SAME AS ADD PROJECT */
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-/* BUTTON */
-.btn-submit{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:10px 30px;
-    border-radius:6px;
-}
+        .title-small {
+            color: #6c757d;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
 
-.btn-submit:hover{
-    background:#1d4ed8;
-}
-</style>
+        .title-main {
+            color: #0d6efd;
+            font-weight: 600;
+        }
 
-<div class="container">
+        .project-row {
+            display: flex;
+            gap: 10px;
+        }
 
-    <div class="container-box">
+        .add-project-btn {
+            white-space: nowrap;
+        }
+    </style>
+</head>
 
-        <div class="text-center">
-            <div class="top-badge">ADD NEW BUG</div>
-            <h3 class="title-main">Add New Bug</h3>
+<body>
+
+<!-- 🔵 TOP BAR -->
+<div class="top-bar d-flex justify-content-start px-3">
+    bugtrackingsystem@example.com | +91 8511374278
+</div>
+
+<!-- 🧭 NAVBAR -->
+<nav class="navbar navbar-expand-lg shadow-sm">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold" href="#">Bug Tracking System</a>
+
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/about/">About</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/contact/">Contact</a>
+                </li>
+
+                <!-- Add -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Add New</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/add-bug/">Add New Bug</a></li>
+                        <li><a class="dropdown-item" href="/add-project/">Add New Project</a></li>
+                        <li><a class="dropdown-item" href="/add-user/">Add New User</a></li>
+                    </ul>
+                </li>
+
+                <!-- 🔥 UPDATED REPORT DROPDOWN -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Reports</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/bug-list/">Bug Report</a></li>
+                        <li><a class="dropdown-item" href="/project-report/">Project Report</a></li>
+                        <li><a class="dropdown-item" href="/user-list/">User Report</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="btn btn-outline-danger btn-sm ms-2" href="/logout/">Logout</a>
+                </li>
+
+            </ul>
         </div>
 
-        <form method="POST">
+    </div>
+</nav>
+
+<!-- 🔙 BACK BUTTON -->
+<div class="container mt-3">
+    <a href="/" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
+</div>
+
+<!-- 🔥 MAIN CONTAINER UPDATED -->
+<div class="container mt-4">
+
+    {% if not projects %}
+    <div class="alert alert-warning text-center">
+        No project found. Please add a project first.
+    </div>
+    {% endif %}
+
+    <div class="text-center mb-4">
+        <div class="title-small">ADD NEW BUG</div>
+        <h2 class="title-main">🐞 Add New Bug</h2>
+    </div>
+
+    <!-- 🔥 CARD UPDATED -->
+    <div class="form-card">
+
+        <!-- 🔥 IMPORTANT FIX -->
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <!-- BUG NAME -->
-            <div class="mb-3">
-                <label>Bug Name</label>
-                <input type="text" name="title" class="form-control" placeholder="Bug Name" required>
-            </div>
+            <div class="row">
 
-            <!-- PROJECT -->
-            <div class="mb-3">
-                <label>Project</label>
-                <input type="text" name="project" class="form-control" placeholder="Select Project" required>
-            </div>
+                <!-- LEFT -->
+                <div class="col-md-6">
 
-            <!-- TESTER CODE (FIXED) -->
-            <div class="mb-3">
-                <label>Tester Code</label>
-                <input type="text" name="tester_code" class="form-control" placeholder="Tester Code" value="{{ request.user.username }}">
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bug Name</label>
+                        <input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
+                    </div>
 
-            <!-- BUG DATE -->
-            <div class="mb-3">
-                <label>Bug Date</label>
-                <input type="date" name="bug_date" class="form-control" required>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project</label>
 
-            <!-- BUG LEVEL -->
-            <div class="mb-3">
-                <label>Bug Level</label>
-                <input type="text" name="bug_level" class="form-control" placeholder="Bug Level">
-            </div>
+                        <div class="project-row">
+                            <select name="project" class="form-control" required>
+                                <option value="">Select Project</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
 
-            <!-- PRIORITY -->
-            <div class="mb-3">
-                <label>Bug Priority</label>
-                <select name="priority" class="form-control">
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                </select>
-            </div>
+                            <a href="/add-project/" class="btn btn-success add-project-btn">
+                                + Add
+                            </a>
+                        </div>
 
-            <!-- BUG TYPE -->
-            <div class="mb-3">
-                <label>Bug Type</label>
-                <input type="text" name="bug_type" class="form-control" placeholder="Bug Type">
-            </div>
+                        <small class="text-muted">
+                            Can't find project? Click "Add" to create one.
+                        </small>
+                    </div>
 
-            <!-- STATUS -->
-            <div class="mb-3">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                    <option>Open</option>
-                    <option>In Progress</option>
-                    <option>Closed</option>
-                </select>
+                    <div class="mb-3">
+                        <label class="form-label">Tester Code</label>
+                        <input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Date</label>
+                        <input type="date" name="bug_date" class="form-control">
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div class="col-md-6">
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Level</label>
+                        <select name="bug_level" class="form-control">
+                            <option value="">Select Level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Priority</label>
+                        <select name="bug_priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Type</label>
+                        <select name="bug_type" class="form-control">
+                            <option value="">Select Type</option>
+                            <option value="ui">UI</option>
+                            <option value="backend">Backend</option>
+                            <option value="performance">Performance</option>
+                        </select>
+                    </div>
+
+                </div>
+
             </div>
 
             <!-- DESCRIPTION -->
-            <div class="mb-3">
-                <label>Description</label>
-                <textarea name="description" class="form-control" placeholder="Description"></textarea>
+            <div class="mb-3 mt-2">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
             </div>
 
-            <div class="text-center">
-                <button type="submit" class="btn-submit">Submit</button>
+            <!-- 🔥 IMAGE UPLOAD ADDED -->
+            <div class="mb-3 mt-2">
+                <label class="form-label">Upload Screenshot</label>
+                <input type="file" name="image" class="form-control">
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary px-5">Submit</button>
             </div>
 
         </form>
@@ -136,4 +243,8 @@ textarea.form-control{
 
 </div>
 
-{% endblock %}
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

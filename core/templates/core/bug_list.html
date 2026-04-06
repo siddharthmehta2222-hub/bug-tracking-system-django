@@ -19,6 +19,18 @@
 .badge-open{background:#dbeafe;color:#1d4ed8;}
 .badge-progress{background:#fef3c7;color:#b45309;}
 .badge-closed{background:#dcfce7;color:#15803d;}
+
+/* 🔥 NEW BUTTON STYLE (LIKE USER LIST) */
+.action-buttons .btn{
+    padding:5px 12px;
+    font-size:12px;
+    margin-right:5px;
+    border-radius:6px;
+}
+
+.btn-view{background:#17a2b8;color:white;}
+.btn-edit{background:#ffc107;color:black;}
+.btn-delete{background:#dc3545;color:white;}
 </style>
 
 <div class="container mt-4">
@@ -27,7 +39,6 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Bug List 🐞</h3>
 
-        <!-- EXPORT BUTTONS -->
         <div>
             <a href="{% url 'export_bugs_excel' %}" class="btn btn-success btn-sm me-2">
                 📥 Excel
@@ -79,6 +90,7 @@
                     <th>Priority</th>
                     <th>Status</th>
                     <th>Assigned To</th>
+                    <th>Action</th> <!-- 🔥 NEW -->
                 </tr>
             </thead>
 
@@ -89,6 +101,7 @@
                 <td>{{ forloop.counter }}</td>
                 <td><strong>{{ bug.title }}</strong></td>
                 <td>{{ bug.project }}</td>
+
                 <td>
                     <span class="badge bg-warning text-dark">
                         {{ bug.priority }}
@@ -106,10 +119,20 @@
                 </td>
 
                 <td>{{ bug.assigned_to }}</td>
+
+                <!-- 🔥 NEW PROFESSIONAL BUTTONS -->
+                <td class="action-buttons">
+                    <a href="/view-bug/{{ bug.id }}/" class="btn btn-view btn-sm">View</a>
+                    <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Edit</a>
+                    <a href="/delete-bug/{{ bug.id }}/"
+                       class="btn btn-delete btn-sm"
+                       onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center text-muted">
+                <td colspan="7" class="text-center text-muted">
                     No bugs found 😔
                 </td>
             </tr>
@@ -117,6 +140,32 @@
 
             </tbody>
         </table>
+
+        <!-- 📄 PAGINATION -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+
+            <p>
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} 
+                of {{ page_obj.paginator.count }} entries
+            </p>
+
+            <div>
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" 
+                       class="btn btn-sm btn-outline-primary">Previous</a>
+                {% endif %}
+
+                <span class="mx-2">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" 
+                       class="btn btn-sm btn-outline-primary">Next</a>
+                {% endif %}
+            </div>
+
+        </div>
 
     </div>
 

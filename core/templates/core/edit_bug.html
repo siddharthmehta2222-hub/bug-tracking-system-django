@@ -1,30 +1,210 @@
-{% extends 'core/base.html' %}
-{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Bug</title>
 
-<div class="container mt-4">
-    <h3>Edit Bug</h3>
-    <hr>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <form method="POST">
-        {% csrf_token %}
+    <style>
+        body {
+            background-color: #f5f7fb;
+        }
 
-        <div class="mb-3">
-            <label>Title</label>
-            <input type="text" name="title" value="{{ bug.title }}" class="form-control">
-        </div>
+        .top-bar {
+            background: #0d6efd;
+            color: white;
+            padding: 6px 20px;
+            font-size: 14px;
+        }
 
-        <div class="mb-3">
-            <label>Priority</label>
-            <select name="priority" class="form-control">
-                <option value="low" {% if bug.priority == 'low' %}selected{% endif %}>Low</option>
-                <option value="medium" {% if bug.priority == 'medium' %}selected{% endif %}>Medium</option>
-                <option value="high" {% if bug.priority == 'high' %}selected{% endif %}>High</option>
-            </select>
-        </div>
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
 
-        <button type="submit" class="btn btn-success">Update</button>
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
-    </form>
+        .form-card {
+            background: white;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        .preview-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            margin-top: 10px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔵 TOP BAR (LEFT FIXED) -->
+<div class="top-bar d-flex justify-content-start">
+    bugtrackingsystem@example.com | +91 8511374278
 </div>
 
-{% endblock %}
+<!-- 🔥 NAVBAR -->
+<nav class="navbar navbar-expand-lg px-4">
+    <a class="navbar-brand fw-bold" href="/">Bug Tracking System</a>
+
+    <div class="ms-auto">
+        <a href="/bug-list/" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+</nav>
+
+<!-- 🔥 TITLE -->
+<div class="container mt-4">
+    <div class="title">
+        <small class="text-primary">EDIT BUG</small>
+        <h2 class="text-primary">Update Bug Details</h2>
+    </div>
+
+    <div class="form-card">
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+
+                <!-- LEFT -->
+                <div class="col-md-6">
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Title</label>
+                        <input type="text" name="title" value="{{ bug.title }}" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Project</label>
+                        <select name="project" class="form-select">
+                            {% for project in projects %}
+                                <option value="{{ project.id }}"
+                                {% if bug.project.id == project.id %}selected{% endif %}>
+                                {{ project.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Level</label>
+                        <select name="bug_level" class="form-select">
+                            <option value="low" {% if bug.bug_level == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if bug.bug_level == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if bug.bug_level == 'high' %}selected{% endif %}>High</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Type</label>
+                        <select name="bug_type" class="form-select">
+                            <option value="ui" {% if bug.bug_type == 'ui' %}selected{% endif %}>UI</option>
+                            <option value="backend" {% if bug.bug_type == 'backend' %}selected{% endif %}>Backend</option>
+                            <option value="performance" {% if bug.bug_type == 'performance' %}selected{% endif %}>Performance</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bug Date</label>
+                        <input type="date" name="bug_date" value="{{ bug.bug_date }}" class="form-control">
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div class="col-md-6">
+
+                    <div class="mb-3">
+                        <label class="form-label">Priority</label>
+                        <select name="priority" class="form-select">
+                            <option value="low" {% if bug.priority == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if bug.priority == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if bug.priority == 'high' %}selected{% endif %}>High</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="open" {% if bug.status == 'open' %}selected{% endif %}>Open</option>
+                            <option value="in_progress" {% if bug.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="closed" {% if bug.status == 'closed' %}selected{% endif %}>Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Assign Developer</label>
+                        <select name="assigned_to" class="form-select">
+                            {% for dev in developers %}
+                                <option value="{{ dev.id }}"
+                                {% if bug.assigned_to.id == dev.id %}selected{% endif %}>
+                                {{ dev.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Reported By</label>
+                        <input type="text" value="{{ bug.reported_by }}" class="form-control" readonly>
+                    </div>
+
+                    <!-- 🔥 IMAGE UPLOAD ADDED -->
+                    <div class="mb-3">
+                        <label class="form-label">Upload Bug Image</label>
+                        <input type="file" name="image" class="form-control" onchange="previewImage(event)">
+
+                        {% if bug.image %}
+                            <img src="{{ bug.image.url }}" class="preview-img" id="preview">
+                        {% else %}
+                            <img id="preview" class="preview-img" style="display:none;">
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mb-3 mt-2">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3">{{ bug.description }}</textarea>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary px-5">Update Bug</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- 🔥 IMAGE PREVIEW SCRIPT -->
+<script>
+function previewImage(event) {
+    let reader = new FileReader();
+    reader.onload = function(){
+        let img = document.getElementById('preview');
+        img.src = reader.result;
+        img.style.display = 'block';
+    }
+    reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@ from django.http import HttpResponseForbidden, HttpResponse
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from .models import Project
+from django.core.paginator import Paginator
 
 from .models import Bug
 from .forms import BugForm, UserSignupForm
@@ -147,16 +148,6 @@ def change_status(request, id, status):
     return redirect('dashboard')
 
 
-def edit_bug(request, id):
-    bug = get_object_or_404(Bug, id=id)
-
-    if request.method == 'POST':
-        bug.title = request.POST.get('title')
-        bug.priority = request.POST.get('priority')
-        bug.save()
-        return redirect('dashboard')
-
-    return render(request, 'core/edit_bug.html', {'bug': bug})
 
 @login_required
 def delete_bug(request, id):
@@ -210,10 +201,24 @@ def close_bug(request, id):
 
 @login_required
 def add_bug(request):
+    from .models import Project
+    projects = Project.objects.all()   # ✅ GET ALL PROJECTS
 
     if request.method == "POST":
         title = request.POST.get('bug_name') or "Untitled Bug"
-        project = request.POST.get('project')
+
+        # ✅ FIX PROJECT (IMPORTANT)
+        from .models import Project
+        project_id = request.POST.get('project')
+
+        if project_id:
+            try:
+                project = Project.objects.get(id=project_id)
+            except Project.DoesNotExist:
+                project = Project.objects.first()
+        else:
+            project = Project.objects.first()
+
         tester_code = request.POST.get('tester_code')
         bug_date = request.POST.get('bug_date')
         bug_level = request.POST.get('bug_level')
@@ -221,19 +226,34 @@ def add_bug(request):
         bug_type = request.POST.get('bug_type')
         description = request.POST.get('description')
 
-        # 🔥 CREATE BUG MANUALLY
+        # 🔥 NEW: IMAGE SUPPORT
+        image = request.FILES.get('image')
+
+        # 🔥 CREATE BUG (UPGRADED)
         bug = Bug.objects.create(
             title=title,
             description=description,
             priority=bug_priority,
             status='open',
             project=project,
+
+            # 🔥 NEW FIELDS SAVED
+            bug_level=bug_level,
+            bug_type=bug_type,
+            bug_date=bug_date,
+            image=image
         )
 
         # ✅ Reporter
         bug.reported_by = request.user
 
+        # 🔥 OPTIONAL: STORE TESTER CODE (if needed later)
+        # (right now we rely on request.user, so safe)
+
         # 🔥 AUTO ASSIGN DEVELOPER
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
         developer = User.objects.filter(role='developer').first()
 
         if developer:
@@ -245,10 +265,141 @@ def add_bug(request):
 
         messages.success(request, "Bug Added Successfully ✅")
 
-        # 🔥 REDIRECT TO BUG REPORT PAGE
         return redirect('bug_list')
 
-    return render(request, 'core/add_bug.html')
+    # 🔥🔥🔥 FINAL FIX (DO NOT REMOVE)
+    return render(request, 'core/add_bug.html', {
+        'projects': projects
+    })
+#=================================================
+# ADD PROJECT
+#=================================================
+@login_required
+def add_project(request):
+    users = User.objects.all()
+
+    if request.method == "POST":
+        name = request.POST.get('name')
+        submission_date = request.POST.get('submission_date')
+        duration = request.POST.get('duration')
+        client_name = request.POST.get('client_name')
+        client_address = request.POST.get('client_address')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email')
+        department = request.POST.get('department')
+        description = request.POST.get('description')
+        project_lead_id = request.POST.get('project_lead')
+
+        # ✅ FIX PROJECT LEAD
+        project_lead = None
+        if project_lead_id:
+            try:
+                project_lead = User.objects.get(id=project_lead_id)
+            except User.DoesNotExist:
+                project_lead = None
+
+        # ✅ SAVE PROJECT
+        Project.objects.create(
+            name=name,
+            submission_date=submission_date if submission_date else None,
+            duration=duration,
+            client_name=client_name,
+            client_address=client_address,
+            phone=phone,
+            email=email,
+            department=department,
+            description=description,
+            project_lead=project_lead
+        )
+
+        messages.success(request, "Project Added Successfully ✅")
+        return redirect('project_report')  # you can change later
+
+    return render(request, 'core/add_project.html', {'users': users})
+
+#===============================================
+#project report
+#===============================================
+@login_required
+def project_report(request):
+    query = request.GET.get('q')
+
+    projects = Project.objects.all().order_by('-id')
+
+    # 🔍 SEARCH
+    if query:
+        projects = projects.filter(
+            Q(name__icontains=query) |
+            Q(client_name__icontains=query) |
+            Q(email__icontains=query) |
+            Q(department__icontains=query) |
+            Q(project_lead_username_icontains=query)
+        )
+
+    # 📄 PAGINATION (IMPORTANT)
+    paginator = Paginator(projects, 5)  # 5 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'core/project_report.html', {
+        'projects': page_obj,   # 🔥 change here
+        'page_obj': page_obj,
+    })
+# ==================================================
+# EXPORT PROJECTS EXCEL
+# ==================================================
+@login_required
+def export_projects_excel(request):
+    projects = Project.objects.all()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    ws.append(['ID', 'Name', 'Client', 'Email', 'Department'])
+
+    for p in projects:
+        ws.append([
+            p.id,
+            p.name,
+            getattr(p, 'client_name', ''),
+            getattr(p, 'email', ''),
+            getattr(p, 'department', '')
+        ])
+
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=projects.xlsx'
+    wb.save(response)
+
+    return response
+
+
+# ==================================================
+# EXPORT PROJECTS PDF
+# ==================================================
+@login_required
+def export_projects_pdf(request):
+    projects = Project.objects.all()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=projects.pdf'
+
+    p_canvas = canvas.Canvas(response)
+
+    y = 800
+    for p in projects:
+        text = f"{p.id} | {p.name} | {getattr(p, 'client_name', '')}"
+        p_canvas.drawString(30, y, text)
+        y -= 20
+
+        if y < 50:
+            p_canvas.showPage()
+            y = 800
+
+    p_canvas.save()
+    return response
+
+
+
 # ==================================================
 # BUG LIST
 # ==================================================
@@ -259,21 +410,108 @@ def bug_list(request):
 
     bugs = Bug.objects.all().order_by('-id')
 
+    # 🔍 SEARCH
     if query:
         bugs = bugs.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query)
         )
 
+    # 🎯 FILTER
     if status:
         bugs = bugs.filter(status=status)
 
+    # 📄 PAGINATION (FIXED ✅)
+    paginator = Paginator(bugs, 5)   # 5 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'core/bug_list.html', {
-        'bugs': bugs,
+        'bugs': page_obj,
+        'page_obj': page_obj,
         'query': query,
         'status': status
     })
 
+# ==================================================
+#view bug
+# ==================================================
+@login_required
+def view_bug(request, id):
+    bug = get_object_or_404(Bug, id=id)
+    return render(request, 'core/view_bug.html', {'bug': bug})
+
+# ==================================================
+# edit bug
+# ==================================================
+@login_required
+def edit_bug(request, id):
+    bug = get_object_or_404(Bug, id=id)
+
+    from .models import Project
+    projects = Project.objects.all()
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    developers = User.objects.filter(role='developer')
+
+    if request.method == 'POST':
+        bug.title = request.POST.get('title')
+        bug.priority = request.POST.get('priority')
+        bug.status = request.POST.get('status')
+
+        # 🔥 EXISTING FIELDS (KEEPED)
+        bug.project_id = request.POST.get('project')
+        bug.assigned_to_id = request.POST.get('assigned_to')
+        bug.bug_level = request.POST.get('bug_level')
+        bug.bug_type = request.POST.get('bug_type')
+        bug.bug_date = request.POST.get('bug_date')
+        bug.description = request.POST.get('description')
+
+        # 🔥🔥 NEW IMAGE SAVE (IMPORTANT)
+        if request.FILES.get('image'):
+            bug.image = request.FILES.get('image')
+
+        bug.save()
+
+        messages.success(request, "Bug updated successfully ✅")
+        return redirect('bug_list')
+
+    return render(request, 'core/edit_bug.html', {
+        'bug': bug,
+        'projects': projects,
+        'developers': developers
+    })
+# ==================================================
+# delete project
+# ==================================================
+@login_required
+def delete_project(request, id):
+    project = get_object_or_404(Project, id=id)
+    project.delete()
+    messages.success(request, "Project deleted successfully")
+    return redirect('project_report')
+
+# ==================================================
+# edit project
+# ==================================================
+@login_required
+def edit_project(request, id):
+    project = get_object_or_404(Project, id=id)
+
+    if request.method == "POST":
+        project.name = request.POST.get('name')
+        project.client_name = request.POST.get('client_name')
+        project.duration = request.POST.get('duration')
+        project.email = request.POST.get('email')
+        project.department = request.POST.get('department')
+
+        project.save()
+
+        messages.success(request, "Project updated successfully ✅")
+        return redirect('project_report')
+
+    return render(request, 'core/edit_project.html', {'project': project})
 
 # ==================================================
 # HOME
@@ -501,3 +739,4 @@ def about(request):
 # ==================================================
 def contact(request):
     return render(request, 'core/contact.html')
+

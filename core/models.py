@@ -25,34 +25,50 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='tester')
 
-    # EXTRA FIELDS
     phone = models.CharField(max_length=15, blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     image = models.ImageField(upload_to='users/', blank=True, null=True)
     address = models.TextField(blank=True, null=True)
 
-    # ✅ FIX: Use username for login (stable)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
-    # ✅ FIX: Correct method name
+    # ✅ FIXED METHOD NAME (_str_)
     def _str_(self):
         return f"{self.username} ({self.role})"
 
 
 # ==================================================
-# PROJECT MODEL
+# PROJECT MODEL (UPDATED 🔥)
 # ==================================================
 class Project(models.Model):
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
+
+    submission_date = models.DateField(blank=True, null=True)
+    duration = models.CharField(max_length=100, blank=True, null=True)
+    client_name = models.CharField(max_length=200, blank=True, null=True)
+    client_address = models.TextField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+
+    project_lead = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='projects'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
 
-    def _str_(self):   # ✅ fixed method name
+    # ✅ FIXED METHOD NAME (_str_)
+    def _str_(self):
         return self.name
 
 
@@ -86,7 +102,6 @@ class Bug(models.Model):
         related_name='reported_bugs'
     )
 
-    # already correct ✅
     assigned_to = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -97,6 +112,14 @@ class Bug(models.Model):
 
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+
+    # 🔥 NEW FIELDS ADDED (FOR EDIT PAGE + FUTURE FEATURES)
+    bug_level = models.CharField(max_length=20, blank=True, null=True)
+    bug_type = models.CharField(max_length=50, blank=True, null=True)
+    bug_date = models.DateField(blank=True, null=True)
+
+    # 🔥 IMAGE SUPPORT (IMPORTANT FEATURE)
+    image = models.ImageField(upload_to='bug_images/', blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

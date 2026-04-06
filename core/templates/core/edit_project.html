@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3 style="text-align:center; color:#0d6efd; font-weight:bold;">
+        Edit Project
+    </h3>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row">
+
+            <!-- LEFT SIDE -->
+            <div class="col-md-6">
+                <label>Project Name</label>
+                <input type="text" name="name" class="form-control"
+                       value="{{ project.name }}">
+
+                <label class="mt-2">Submission Date</label>
+                <input type="date" name="submission_date" class="form-control"
+                       value="{{ project.submission_date|date:'Y-m-d' }}">
+
+                <label class="mt-2">Duration</label>
+                <input type="text" name="duration" class="form-control"
+                       value="{{ project.duration }}">
+
+                <label class="mt-2">Client Name</label>
+                <input type="text" name="client_name" class="form-control"
+                       value="{{ project.client_name }}">
+
+                <label class="mt-2">Project Lead</label>
+                <select name="project_lead" class="form-control">
+                    {% for user in users %}
+                        <option value="{{ user.id }}"
+                        {% if project.project_lead and project.project_lead.id == user.id %}selected{% endif %}>
+                            {{ user.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="col-md-6">
+                <label>Client Address</label>
+                <input type="text" name="client_address" class="form-control"
+                       value="{{ project.client_address }}">
+
+                <label class="mt-2">Phone</label>
+                <input type="text" name="phone" class="form-control"
+                       value="{{ project.phone }}">
+
+                <label class="mt-2">Email</label>
+                <input type="email" name="email" class="form-control"
+                       value="{{ project.email }}">
+
+                <label class="mt-2">Department</label>
+                <input type="text" name="department" class="form-control"
+                       value="{{ project.department }}">
+
+                <label class="mt-2">Description</label>
+                <textarea name="description" class="form-control">{{ project.description }}</textarea>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">
+                Update Project
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

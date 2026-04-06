@@ -39,7 +39,24 @@
         }
 
         .dropdown-menu{
+            border-radius:10px;
+            padding:8px;
+            min-width:220px; /* 🔥 FIX SPACING */
+        }
+
+        /* 🔥 FIX ICON ALIGNMENT */
+        .dropdown-item{
             border-radius:8px;
+            padding:8px 12px;
+            transition:0.2s;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .dropdown-item:hover{
+            background:#f1f5ff;
+            transform:translateX(5px);
         }
 
         .btn{
@@ -85,7 +102,6 @@
 
         <ul class="navbar-nav ms-auto align-items-center">
 
-            <!-- ALWAYS -->
             <li class="nav-item">
                 <a class="nav-link active" href="/">Home</a>
             </li>
@@ -100,36 +116,75 @@
 
             {% if request.user.is_authenticated %}
 
-                <!-- 🔥 ROLE BASED NAVBAR -->
-
                 {% if request.user.role == 'admin' or request.user.role == 'manager' %}
 
-                    <!-- ADMIN / MANAGER ONLY -->
+                    <!-- ADD NEW -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
                             Add New
                         </a>
                         <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item" href="{% url 'add_bug' %}">Add New Bug</a></li>
-                            <li><a class="dropdown-item" href="#">Add New Project</a></li>
-                            <li><a class="dropdown-item" href="{% url 'add_user' %}">Add New User</a></li>
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'add_bug' %}">
+                                    🐞 <span>Add New Bug</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'add_project' %}">
+                                    📁 <span>Add New Project</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'add_user' %}">
+                                    👤 <span>Add New User</span>
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
 
+                    <!-- REPORTS -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
                             Reports
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'bug_list' %}">Bug Report</a></li>
-                            <li><a class="dropdown-item" href="{% url 'user_list' %}">User List</a></li>
-                            <li><a class="dropdown-item" href="{% url 'user_report' %}">User Report</a></li>
+
+                        <ul class="dropdown-menu shadow-sm">
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'bug_list' %}">
+                                    📊 <span>Bug Report</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'user_list' %}">
+                                    👥 <span>User List</span>
+                                </a>
+                            </li>
+
+                            <!-- 🔥 FIXED BROKEN TAG HERE -->
+                            <li>
+                                <a class="dropdown-item" href="{% url 'user_report' %}">
+                                    📄 <span>User Report</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'project_report' %}">
+                                    📁 <span>Project Report</span>
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
 
                 {% endif %}
 
-                <!-- LOGOUT (ALL LOGGED USERS) -->
+                <!-- LOGOUT -->
                 <li class="nav-item ms-2">
                     <form action="{% url 'logout' %}" method="POST">
                         {% csrf_token %}
@@ -143,7 +198,6 @@
 
                 {% if request.path == '/login/' %}
 
-                    <!-- LOGIN PAGE -->
                     <li class="nav-item ms-2">
                         <a class="btn btn-success btn-sm" href="{% url 'signup' %}">
                             Signup
@@ -152,7 +206,6 @@
 
                 {% elif request.path == '/signup/' %}
 
-                    <!-- SIGNUP PAGE -->
                     <li class="nav-item ms-2">
                         <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}">
                             Login
@@ -161,7 +214,6 @@
 
                 {% else %}
 
-                    <!-- OTHER PAGES -->
                     <li class="nav-item ms-2">
                         <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}">
                             Login

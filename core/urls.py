@@ -37,6 +37,12 @@ urlpatterns = [
     path('delete-user/<int:id>/', views.delete_user, name='delete_user'),
     path('user-report/', views.user_report, name='user_report'),
     path('change-password/<int:id>/', views.change_password, name='change_password'),
+    path('add-project/', views.add_project, name='add_project'),
+    path('project-report/', views.project_report, name='project_report'),
+    path('delete-project/<int:id>/', views.delete_project, name='delete_project'),
+    path('edit-project/<int:id>/', views.edit_project, name='edit_project'),
+    path('view-bug/<int:id>/', views.view_bug, name='view_bug'),
+    path('edit-bug/<int:id>/', views.edit_bug, name='edit_bug'),
 
     # ===============================
     # EXPORT FEATURES
@@ -45,11 +51,14 @@ urlpatterns = [
     path('export-users-pdf/', views.export_users_pdf, name='export_users_pdf'),
     path('export-bugs-excel/', views.export_bugs_excel, name='export_bugs_excel'),
     path('export-bugs-pdf/', views.export_bugs_pdf, name='export_bugs_pdf'),
+    path('export-projects-excel/', views.export_projects_excel, name='export_projects_excel'),
+    path('export-projects-pdf/', views.export_projects_pdf, name='export_projects_pdf'),
 
     path('bug/edit/<int:id>/', views.edit_bug, name='edit_bug'),
     path('bug/status/<int:id>/<str:status>/', views.change_status, name='change_status'),
     path('bug/delete/<int:id>/', views.delete_bug, name='delete_bug'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact')
+    
 
 ]
