@@ -2,82 +2,178 @@
 
 {% block content %}
 
-<div class="container mt-5" style="max-width:800px;">
+<style>
+    /* ❌ HIDE MENU + WELCOME (LIKE VIEW PROJECT) */
+    .header-menu, .center-bar {
+        display: none !important;
+    }
 
-    <h3 class="mb-3 text-center">Add New User</h3>
-    <hr>
+    .form-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+    .title-small {
+        color: #6c757d;
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
 
-        <!-- ROLE -->
-        <select name="role" class="form-control mb-3" required>
-            <option value="">Select Role</option>
-            <option value="admin">Admin</option>
-            <option value="manager">Manager</option>
-            <option value="developer">Developer</option>
-            <option value="tester">Tester</option>
-        </select>
+    .title-main {
+        color: #0d6efd;
+        font-weight: 600;
+    }
 
-        <!-- USERNAME + PASSWORD -->
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" name="username" placeholder="Username" class="form-control mb-3" required>
-            </div>
-            <div class="col-md-6">
-                <input type="password" name="password" placeholder="Password" class="form-control mb-3" required>
-            </div>
-        </div>
+    /* 🔥 FIELD ICON STYLE */
+    .field-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        <!-- FIRST + LAST NAME -->
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" name="first_name" placeholder="First Name" class="form-control mb-3">
-            </div>
-            <div class="col-md-6">
-                <input type="text" name="last_name" placeholder="Last Name" class="form-control mb-3">
-            </div>
-        </div>
+    .field-icon {
+        color: #0d6efd;
+        width: 20px;
+    }
+</style>
 
-        <!-- PHONE + EMAIL -->
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" name="phone" placeholder="Phone Number" class="form-control mb-3">
-            </div>
-            <div class="col-md-6">
-                <input type="email" name="email" placeholder="Email" class="form-control mb-3" required>
-            </div>
-        </div>
+<div class="container mt-4" style="max-width:900px;">
 
-        <!-- GENDER + DOB -->
-        <div class="row">
-            <div class="col-md-6">
-                <select name="gender" class="form-control mb-3">
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <input type="date" name="dob" class="form-control mb-3">
-            </div>
-        </div>
+    <!-- 🔙 BACK BUTTON -->
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary mb-3">
+        ← Back
+    </a>
 
-        <!-- IMAGE + ADDRESS -->
-        <div class="row">
-            <div class="col-md-6">
-                <input type="file" name="image" class="form-control mb-3">
-            </div>
-            <div class="col-md-6">
-                <textarea name="address" placeholder="Address" class="form-control mb-3"></textarea>
-            </div>
-        </div>
+    <!-- 🔥 TITLE -->
+    <div class="text-center mb-4">
+        <div class="title-small">ADD NEW USER</div>
+        <h3 class="title-main">👤 Add New User</h3>
+    </div>
 
-        <button type="submit" class="btn btn-primary w-100">
-            Create User
-        </button>
+    <div class="form-card">
 
-    </form>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- ROLE -->
+            <div class="mb-3">
+                <label>Select Role</label>
+                <div class="field-box">
+                    <i class="fa fa-user-shield field-icon"></i>
+                    <select name="role" class="form-control" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="developer">Developer</option>
+                        <option value="tester">Tester</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- USERNAME + PASSWORD -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Username</label>
+                    <div class="field-box">
+                        <i class="fa fa-user field-icon"></i>
+                        <input type="text" name="username" placeholder="Username" class="form-control mb-3" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Password</label>
+                    <div class="field-box">
+                        <i class="fa fa-lock field-icon"></i>
+                        <input type="password" name="password" placeholder="Password" class="form-control mb-3" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIRST + LAST NAME -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label>First Name</label>
+                    <div class="field-box">
+                        <i class="fa fa-id-card field-icon"></i>
+                        <input type="text" name="first_name" placeholder="First Name" class="form-control mb-3">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Last Name</label>
+                    <div class="field-box">
+                        <i class="fa fa-id-card field-icon"></i>
+                        <input type="text" name="last_name" placeholder="Last Name" class="form-control mb-3">
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHONE + EMAIL -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Phone Number</label>
+                    <div class="field-box">
+                        <i class="fa fa-phone field-icon"></i>
+                        <input type="text" name="phone" placeholder="Phone Number" class="form-control mb-3">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Email</label>
+                    <div class="field-box">
+                        <i class="fa fa-envelope field-icon"></i>
+                        <input type="email" name="email" placeholder="Email" class="form-control mb-3" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GENDER + DOB -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Gender</label>
+                    <div class="field-box">
+                        <i class="fa fa-venus-mars field-icon"></i>
+                        <select name="gender" class="form-control mb-3">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Date of Birth</label>
+                    <div class="field-box">
+                        <i class="fa fa-calendar field-icon"></i>
+                        <input type="date" name="dob" class="form-control mb-3">
+                    </div>
+                </div>
+            </div>
+
+            <!-- IMAGE + ADDRESS -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Profile Image</label>
+                    <div class="field-box">
+                        <i class="fa fa-image field-icon"></i>
+                        <input type="file" name="image" class="form-control mb-3">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Address</label>
+                    <div class="field-box">
+                        <i class="fa fa-location-dot field-icon"></i>
+                        <textarea name="address" placeholder="Address" class="form-control mb-3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUTTON -->
+            <button type="submit" class="btn btn-primary w-100">
+                Create User
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 

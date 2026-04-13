@@ -1,15 +1,50 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
+<style>
+.header-menu, .center-bar {
+    display: none !important;
+}
+</style>
 
 <div class="container mt-5">
 
     <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold">User Management</h3>
-        <a href="{% url 'add_user' %}" class="btn btn-primary shadow-sm">
-            + Add User
-        </a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+    <!-- 🔙 BACK BUTTON -->
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-sm">
+        ← Back
+    </a>
+
+    <!-- 🔍 SEARCH + FILTER -->
+    <form method="GET" class="d-flex gap-2">
+
+        <!-- SEARCH -->
+        <input type="text" name="search" placeholder="Search user..."
+               value="{{ request.GET.search }}"
+               class="form-control form-control-sm">
+
+        <!-- FILTER -->
+        <select name="role" class="form-select form-select-sm">
+            <option value="">All Role</option>
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Developer">Developer</option>
+            <option value="Tester">Tester</option>
+        </select>
+
+        <!-- APPLY -->
+        <button class="btn btn-primary btn-sm">Apply</button>
+
+        <!-- RESET -->
+        <a href="/user-list/" class="btn btn-secondary btn-sm">Reset</a>
+
+    </form>
+
+</div>
+
+<h3>User Management</h3>
     </div>
 
     <!-- CARD -->
@@ -36,7 +71,7 @@
                     <!-- BODY -->
                     <tbody>
 
-                        {% for user in users %}
+                        {% for user in page_obj %}
                         <tr>
 
                             <!-- SERIAL -->
@@ -129,6 +164,48 @@
                     </tbody>
 
                 </table>
+                <!-- ✅ PAGINATION HERE -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+
+    <small>
+        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }}
+        of {{ page_obj.paginator.count }} entries
+    </small>
+
+    <nav>
+        <ul class="pagination pagination-sm mb-0">
+
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&role={{ request.GET.role }}">
+                        Previous
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link"
+                       href="?page={{ num }}&search={{ request.GET.search }}&role={{ request.GET.role }}">
+                        {{ num }}
+                    </a>
+                </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&role={{ request.GET.role }}">
+                        Next
+                    </a>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+
+</div>
             </div>
 
         </div>

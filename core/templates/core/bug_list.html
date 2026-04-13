@@ -3,6 +3,9 @@
 {% block content %}
 
 <style>
+.header-menu, .center-bar {
+    display: none !important;
+}    
 .table-container{
     background:white;
     padding:25px;
@@ -40,6 +43,10 @@
         <h3>Bug List 🐞</h3>
 
         <div>
+            <!-- 🔙 LEFT SIDE BACK BUTTON -->
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
             <a href="{% url 'export_bugs_excel' %}" class="btn btn-success btn-sm me-2">
                 📥 Excel
             </a>

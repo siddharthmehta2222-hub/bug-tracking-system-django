@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # ==================================================
@@ -53,6 +54,13 @@ class Project(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     department = models.CharField(max_length=100, blank=True, null=True)
+
+    # 🔥 NEW project status field
+    status = models.CharField(max_length=20, choices=(
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('on_hold', 'On Hold'),
+    ), default='active')
 
     project_lead = models.ForeignKey(
         User,
@@ -113,6 +121,8 @@ class Bug(models.Model):
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
 
+    
+
     # 🔥 NEW FIELDS ADDED (FOR EDIT PAGE + FUTURE FEATURES)
     bug_level = models.CharField(max_length=20, blank=True, null=True)
     bug_type = models.CharField(max_length=50, blank=True, null=True)
@@ -129,3 +139,12 @@ class Bug(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.status})"
+    
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return self.message

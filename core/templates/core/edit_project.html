@@ -1,77 +1,223 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<div class="container mt-4">
+<style>
+.header-menu, .center-bar {
+    display: none !important;
+}
 
-    <h3 style="text-align:center; color:#0d6efd; font-weight:bold;">
-        Edit Project
-    </h3>
+.view-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-    <form method="POST">
-        {% csrf_token %}
+.view-title {
+    text-align: center;
+    color: #0d6efd;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
 
-        <div class="row">
+.view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
 
-            <!-- LEFT SIDE -->
-            <div class="col-md-6">
-                <label>Project Name</label>
-                <input type="text" name="name" class="form-control"
-                       value="{{ project.name }}">
+.view-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
 
-                <label class="mt-2">Submission Date</label>
-                <input type="date" name="submission_date" class="form-control"
-                       value="{{ project.submission_date|date:'Y-m-d' }}">
+.view-value {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 15px;
 
-                <label class="mt-2">Duration</label>
-                <input type="text" name="duration" class="form-control"
-                       value="{{ project.duration }}">
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-                <label class="mt-2">Client Name</label>
-                <input type="text" name="client_name" class="form-control"
-                       value="{{ project.client_name }}">
+.field-icon {
+    width: 20px;
+    text-align: center;
+    color: #0d6efd;
+    opacity: 0.8;
+}
 
-                <label class="mt-2">Project Lead</label>
-                <select name="project_lead" class="form-control">
-                    {% for user in users %}
-                        <option value="{{ user.id }}"
-                        {% if project.project_lead and project.project_lead.id == user.id %}selected{% endif %}>
-                            {{ user.username }}
-                        </option>
-                    {% endfor %}
-                </select>
+.view-input, .view-select {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+}
+
+/* 🔥 FIX: PROFILE IMAGE */
+.profile-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.view-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+}
+
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.update-btn {
+    background: linear-gradient(to right, #0d6efd, #2563eb);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+}
+</style>
+
+<div class="view-container">
+
+    <div class="top-actions">
+        <a href="{% url 'project_report' %}" class="btn btn-outline-primary btn-sm">
+            ← Back
+        </a>
+    </div>
+
+    <h3 class="view-title">Edit Project</h3>
+
+    <hr style="width:60px; margin:auto; border:2px solid #0d6efd; margin-bottom:25px;">
+
+    <div class="view-card">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="view-grid">
+
+                <!-- LEFT -->
+                <div>
+
+                    <p class="view-label">Project Name</p>
+                    <div class="view-value">
+                        <i class="fa fa-folder field-icon"></i>
+                        <input type="text" name="name" class="view-input"
+                               value="{{ project.name }}">
+                    </div>
+
+                    <p class="view-label">Submission Date</p>
+                    <div class="view-value">
+                        <i class="fa fa-calendar field-icon"></i>
+                        <input type="date" name="submission_date" class="view-input"
+                               value="{{ project.submission_date|date:'Y-m-d' }}">
+                    </div>
+
+                    <p class="view-label">Duration</p>
+                    <div class="view-value">
+                        <i class="fa fa-clock field-icon"></i>
+                        <input type="text" name="duration" class="view-input"
+                               value="{{ project.duration }}">
+                    </div>
+
+                    <p class="view-label">Client Name</p>
+                    <div class="view-value">
+                        <i class="fa fa-user field-icon"></i>
+                        <input type="text" name="client_name" class="view-input"
+                               value="{{ project.client_name }}">
+                    </div>
+
+                    <!-- 🔥 FIXED PROJECT LEAD -->
+                    <p class="view-label">Project Lead</p>
+                    <div class="view-value">
+                        <i class="fa fa-user-circle field-icon"></i>
+
+                        <!-- ✅ FIX: IMAGE SAME POSITION -->
+                        {% if project.project_lead and project.project_lead.image %}
+                            <img src="{{ project.project_lead.image.url }}" class="profile-img">
+                        {% else %}
+                            <img src="https://via.placeholder.com/30" class="profile-img">
+                        {% endif %}
+
+                        <select name="project_lead" class="view-select">
+                            {% for user in users %}
+                                <option value="{{ user.id }}"
+                                {% if project.project_lead and project.project_lead.id == user.id %}selected{% endif %}>
+                                    {{ user.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div>
+
+                    <p class="view-label">Client Address</p>
+                    <div class="view-value">
+                        <i class="fa fa-location-dot field-icon"></i>
+                        <input type="text" name="client_address" class="view-input"
+                               value="{{ project.client_address }}">
+                    </div>
+
+                    <p class="view-label">Phone</p>
+                    <div class="view-value">
+                        <i class="fa fa-phone field-icon"></i>
+                        <input type="text" name="phone" class="view-input"
+                               value="{{ project.phone }}">
+                    </div>
+
+                    <p class="view-label">Email</p>
+                    <div class="view-value">
+                        <i class="fa fa-envelope field-icon"></i>
+                        <input type="email" name="email" class="view-input"
+                               value="{{ project.email }}">
+                    </div>
+
+                    <!-- 🔥 FIX: DEPARTMENT DROPDOWN -->
+                    <p class="view-label">Department</p>
+                    <div class="view-value">
+                        <i class="fa fa-building field-icon"></i>
+
+                        <select name="department" class="view-select">
+                            <option value="frontend" {% if project.department == "frontend" %}selected{% endif %}>Frontend</option>
+                            <option value="backend" {% if project.department == "backend" %}selected{% endif %}>Backend</option>
+                            <option value="testing" {% if project.department == "testing" %}selected{% endif %}>Testing</option>
+                            <option value="design" {% if project.department == "design" %}selected{% endif %}>Design</option>
+                        </select>
+                    </div>
+
+                    <p class="view-label">Description</p>
+                    <div class="view-value">
+                        <i class="fa fa-align-left field-icon"></i>
+                        <textarea name="description" class="view-input">{{ project.description }}</textarea>
+                    </div>
+
+                </div>
+
             </div>
 
-            <!-- RIGHT SIDE -->
-            <div class="col-md-6">
-                <label>Client Address</label>
-                <input type="text" name="client_address" class="form-control"
-                       value="{{ project.client_address }}">
-
-                <label class="mt-2">Phone</label>
-                <input type="text" name="phone" class="form-control"
-                       value="{{ project.phone }}">
-
-                <label class="mt-2">Email</label>
-                <input type="email" name="email" class="form-control"
-                       value="{{ project.email }}">
-
-                <label class="mt-2">Department</label>
-                <input type="text" name="department" class="form-control"
-                       value="{{ project.department }}">
-
-                <label class="mt-2">Description</label>
-                <textarea name="description" class="form-control">{{ project.description }}</textarea>
+            <div class="text-center mt-3">
+                <button type="submit" class="btn update-btn text-white">
+                    Update Project
+                </button>
             </div>
 
-        </div>
+        </form>
 
-        <div class="text-center mt-3">
-            <button type="submit" class="btn btn-primary">
-                Update Project
-            </button>
-        </div>
-
-    </form>
+    </div>
 
 </div>
 

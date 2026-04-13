@@ -2,24 +2,102 @@
 
 {% block content %}
 
-<div class="container mt-5">
+<style>
+/* ❌ HIDE MENU + WELCOME ONLY FOR EDIT PAGE */
+.header-menu, .center-bar {
+    display: none !important;
+}
 
-    <div class="card shadow border-0">
-        <div class="card-body">
+/* 🔥 SAME AS VIEW PROJECT */
+.view-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-            <!-- HEADER -->
-            <h3 class="text-center text-primary mb-4">
-                Update Profile of {{ user.first_name }}
-            </h3>
+.view-title {
+    text-align: center;
+    color: #0d6efd;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
 
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
+/* 🔥 CARD */
+.view-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+}
 
-                <div class="row g-3">
+/* 🔥 FIELD BOX */
+.field-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-                    <!-- ROLE -->
-                    <div class="col-md-12">
-                        <label class="form-label">Select User Role</label>
+/* 🔥 ICON */
+.field-icon {
+    width: 20px;
+    text-align: center;
+    color: #0d6efd;
+}
+
+/* 🔥 AVATAR */
+.profile-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0d6efd;
+}
+
+/* 🔥 BUTTON ALIGN */
+.top-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+</style>
+
+<div class="view-container">
+
+    <!-- 🔙 BACK BUTTON -->
+    <div class="top-actions">
+        <a href="{% url 'user_list' %}" class="btn btn-outline-primary btn-sm">
+            ← Back
+        </a>
+    </div>
+
+    <!-- 🔥 TITLE -->
+    <h3 class="view-title">Update Profile of {{ user.first_name }}</h3>
+    <hr style="width:60px; margin:auto; border:2px solid #0d6efd; margin-bottom:25px;">
+
+    <div class="view-card">
+
+        <!-- 🔥 PROFILE AVATAR -->
+        <div class="text-center mb-4">
+            {% if user.image %}
+                <img src="{{ user.image.url }}" class="profile-img">
+            {% else %}
+                <img src="https://via.placeholder.com/70" class="profile-img">
+            {% endif %}
+            <div class="mt-2 fw-bold">{{ user.username }}</div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row g-3">
+
+                <!-- ROLE -->
+                <div class="col-md-12">
+                    <label class="form-label">Select User Role</label>
+                    <div class="field-box">
+                        <i class="fa fa-user-shield field-icon"></i>
                         <select name="role" class="form-control" required>
                             <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
                             <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
@@ -27,83 +105,103 @@
                             <option value="tester" {% if user.role == 'tester' %}selected{% endif %}>Tester</option>
                         </select>
                     </div>
+                </div>
 
-                    <!-- USERNAME -->
-                    <div class="col-md-6">
-                        <label class="form-label">Username</label>
+                <!-- USERNAME -->
+                <div class="col-md-6">
+                    <label class="form-label">Username</label>
+                    <div class="field-box">
+                        <i class="fa fa-user field-icon"></i>
                         <input type="text" class="form-control" value="{{ user.username }}" disabled>
                     </div>
+                </div>
 
-                    <!-- EMAIL -->
-                    <div class="col-md-6">
-                        <label class="form-label">Email</label>
+                <!-- EMAIL -->
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <div class="field-box">
+                        <i class="fa fa-envelope field-icon"></i>
                         <input type="email" class="form-control" value="{{ user.email }}" disabled>
                     </div>
+                </div>
 
-                    <!-- FIRST NAME -->
-                    <div class="col-md-6">
-                        <label class="form-label">First Name</label>
+                <!-- FIRST NAME -->
+                <div class="col-md-6">
+                    <label class="form-label">First Name</label>
+                    <div class="field-box">
+                        <i class="fa fa-id-card field-icon"></i>
                         <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
                     </div>
+                </div>
 
-                    <!-- LAST NAME -->
-                    <div class="col-md-6">
-                        <label class="form-label">Last Name</label>
+                <!-- LAST NAME -->
+                <div class="col-md-6">
+                    <label class="form-label">Last Name</label>
+                    <div class="field-box">
+                        <i class="fa fa-id-card field-icon"></i>
                         <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
                     </div>
+                </div>
 
-                    <!-- PHONE -->
-                    <div class="col-md-6">
-                        <label class="form-label">Phone Number</label>
+                <!-- PHONE -->
+                <div class="col-md-6">
+                    <label class="form-label">Phone Number</label>
+                    <div class="field-box">
+                        <i class="fa fa-phone field-icon"></i>
                         <input type="text" name="phone" class="form-control" value="{{ user.phone }}">
                     </div>
+                </div>
 
-                    <!-- GENDER -->
-                    <div class="col-md-6">
-                        <label class="form-label">Gender</label>
+                <!-- GENDER -->
+                <div class="col-md-6">
+                    <label class="form-label">Gender</label>
+                    <div class="field-box">
+                        <i class="fa fa-venus-mars field-icon"></i>
                         <select name="gender" class="form-control">
                             <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
                             <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female</option>
                         </select>
                     </div>
+                </div>
 
-                    <!-- DOB -->
-                    <div class="col-md-6">
-                        <label class="form-label">Date of Birth</label>
+                <!-- DOB -->
+                <div class="col-md-6">
+                    <label class="form-label">Date of Birth</label>
+                    <div class="field-box">
+                        <i class="fa fa-calendar field-icon"></i>
                         <input type="date" name="dob" class="form-control" value="{{ user.dob|date:'Y-m-d' }}">
                     </div>
+                </div>
 
-                    <!-- IMAGE -->
-                    <div class="col-md-6">
-                        <label class="form-label">Profile Image</label>
+                <!-- IMAGE -->
+                <div class="col-md-6">
+                    <label class="form-label">Profile Image</label>
+                    <div class="field-box">
+                        <i class="fa fa-image field-icon"></i>
                         <input type="file" name="image" class="form-control">
                     </div>
+                </div>
 
-                    <!-- CURRENT IMAGE -->
-                    <div class="col-md-6">
-                        {% if user.image %}
-                            <img src="{{ user.image.url }}" width="80" class="mt-2 rounded">
-                        {% endif %}
-                    </div>
-
-                    <!-- ADDRESS -->
-                    <div class="col-md-12">
-                        <label class="form-label">Address</label>
+                <!-- ADDRESS -->
+                <div class="col-md-12">
+                    <label class="form-label">Address</label>
+                    <div class="field-box">
+                        <i class="fa fa-location-dot field-icon"></i>
                         <textarea name="address" class="form-control" rows="2">{{ user.address }}</textarea>
                     </div>
-
                 </div>
 
-                <!-- BUTTON -->
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary px-5">
-                        Update User
-                    </button>
-                </div>
+            </div>
 
-            </form>
+            <!-- BUTTON -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5">
+                    Update User
+                </button>
+            </div>
 
-        </div>
+        </form>
+
     </div>
 
 </div>

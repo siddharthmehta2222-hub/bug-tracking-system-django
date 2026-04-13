@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,6 +6,9 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- 🔥 FONT AWESOME (FOR ICONS) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
         body {
@@ -22,12 +26,17 @@
             background: white;
         }
 
-        /* 🔥 UPDATED SAME AS ADD PROJECT */
+        /* ❌ HIDE MENU LIKE VIEW PROJECT */
+        .navbar .nav {
+            display: none !important;
+        }
+
+        /* 🔥 SAME STYLE */
         .form-card {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
         }
 
         .title-small {
@@ -49,79 +58,65 @@
         .add-project-btn {
             white-space: nowrap;
         }
+
+        /* 🔥 ICON FIELD STYLE */
+        .field-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .field-icon {
+            color: #0d6efd;
+            width: 20px;
+        }
     </style>
 </head>
 
 <body>
 
 <!-- 🔵 TOP BAR -->
-<div class="top-bar d-flex justify-content-start px-3">
-    bugtrackingsystem@example.com | +91 8511374278
-</div>
 
+<!-- right side icons -->    
+<div class="top-bar d-flex justify-content-between align-items-center px-3">
+
+    <!-- LEFT SIDE -->
+    <div>
+        bugtrackingsystem@example.com | +91 8511374278
+    </div>
+
+    <!-- RIGHT SIDE ICONS -->
+    <div class="d-flex gap-3">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-instagram"></i>
+        <i class="fab fa-whatsapp"></i>
+        <i class="fab fa-twitter"></i>
+    </div>
+
+
+</div>
 <!-- 🧭 NAVBAR -->
 <nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
-
-        <a class="navbar-brand fw-bold" href="#">Bug Tracking System</a>
-
-        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="menu">
-            <ul class="navbar-nav ms-auto">
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/about/">About</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/contact/">Contact</a>
-                </li>
-
-                <!-- Add -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Add New</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/add-bug/">Add New Bug</a></li>
-                        <li><a class="dropdown-item" href="/add-project/">Add New Project</a></li>
-                        <li><a class="dropdown-item" href="/add-user/">Add New User</a></li>
-                    </ul>
-                </li>
-
-                <!-- 🔥 UPDATED REPORT DROPDOWN -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Reports</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/bug-list/">Bug Report</a></li>
-                        <li><a class="dropdown-item" href="/project-report/">Project Report</a></li>
-                        <li><a class="dropdown-item" href="/user-list/">User Report</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a class="btn btn-outline-danger btn-sm ms-2" href="/logout/">Logout</a>
-                </li>
-
-            </ul>
-        </div>
-
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+            <img src="{% static 'images/logo.png' %}"  width="30" height="30">
+            Bug Tracking System
+        </a>
+        
+            
     </div>
 </nav>
 
-<!-- 🔙 BACK BUTTON -->
-<div class="container mt-3">
-    <a href="/" class="btn btn-outline-secondary btn-sm">
+!-- ✅ ADD HERE -- BACK BUTTON (MOVED HERE) --
+<div class="container mt-3 d-flex justify-content-end">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
         ← Back
     </a>
 </div>
 
-<!-- 🔥 MAIN CONTAINER UPDATED -->
+
+
+<!-- 🔥 MAIN CONTAINER -->
 <div class="container mt-4">
 
     {% if not projects %}
@@ -135,10 +130,8 @@
         <h2 class="title-main">🐞 Add New Bug</h2>
     </div>
 
-    <!-- 🔥 CARD UPDATED -->
     <div class="form-card">
 
-        <!-- 🔥 IMPORTANT FIX -->
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
@@ -149,38 +142,52 @@
 
                     <div class="mb-3">
                         <label class="form-label">Bug Name</label>
-                        <input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
+                        <div class="field-box">
+                            <i class="fa fa-bug field-icon"></i>
+                            <input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Project</label>
 
                         <div class="project-row">
-                            <select name="project" class="form-control" required>
-                                <option value="">Select Project</option>
-                                {% for project in projects %}
-                                    <option value="{{ project.id }}">{{ project.name }}</option>
-                                {% endfor %}
-                            </select>
-
+                            <div class="field-box w-100">
+                                <i class="fa fa-folder field-icon"></i>
+                                <select name="project" class="form-control" required>
+                                    <option value="">Select Project</option>
+                                    {% for project in projects %}
+                                        <option value="{{ project.id }}">{{ project.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if request.user.role == 'admin' or request.user.role == 'manager' %}
                             <a href="/add-project/" class="btn btn-success add-project-btn">
                                 + Add
                             </a>
+                            {% endif %}
                         </div>
-
+                        {% if request.user.role == 'admin' or request.user.role == 'manager' %}
                         <small class="text-muted">
                             Can't find project? Click "Add" to create one.
                         </small>
+                        {% endif %}
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Tester Code</label>
-                        <input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
+                        <div class="field-box">
+                            <i class="fa fa-code field-icon"></i>
+                            <input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Bug Date</label>
-                        <input type="date" name="bug_date" class="form-control">
+                        <div class="field-box">
+                            <i class="fa fa-calendar field-icon"></i>
+                            <input type="date" name="bug_date" class="form-control">
+                        </div>
                     </div>
 
                 </div>
@@ -190,31 +197,40 @@
 
                     <div class="mb-3">
                         <label class="form-label">Bug Level</label>
-                        <select name="bug_level" class="form-control">
-                            <option value="">Select Level</option>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
+                        <div class="field-box">
+                            <i class="fa fa-layer-group field-icon"></i>
+                            <select name="bug_level" class="form-control">
+                                <option value="">Select Level</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Bug Priority</label>
-                        <select name="bug_priority" class="form-control">
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
+                        <div class="field-box">
+                            <i class="fa fa-flag field-icon"></i>
+                            <select name="bug_priority" class="form-control">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Bug Type</label>
-                        <select name="bug_type" class="form-control">
-                            <option value="">Select Type</option>
-                            <option value="ui">UI</option>
-                            <option value="backend">Backend</option>
-                            <option value="performance">Performance</option>
-                        </select>
+                        <div class="field-box">
+                            <i class="fa fa-sitemap field-icon"></i>
+                            <select name="bug_type" class="form-control">
+                                <option value="">Select Type</option>
+                                <option value="ui">UI</option>
+                                <option value="backend">Backend</option>
+                                <option value="performance">Performance</option>
+                            </select>
+                        </div>
                     </div>
 
                 </div>
@@ -224,13 +240,19 @@
             <!-- DESCRIPTION -->
             <div class="mb-3 mt-2">
                 <label class="form-label">Description</label>
-                <textarea name="description" class="form-control" rows="3"></textarea>
+                <div class="field-box">
+                    <i class="fa fa-align-left field-icon"></i>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
             </div>
 
-            <!-- 🔥 IMAGE UPLOAD ADDED -->
+            <!-- IMAGE -->
             <div class="mb-3 mt-2">
                 <label class="form-label">Upload Screenshot</label>
-                <input type="file" name="image" class="form-control">
+                <div class="field-box">
+                    <i class="fa fa-image field-icon"></i>
+                    <input type="file" name="image" class="form-control">
+                </div>
             </div>
 
             <div class="text-center mt-3">
@@ -243,7 +265,6 @@
 
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

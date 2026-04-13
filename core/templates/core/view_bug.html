@@ -3,95 +3,197 @@
 {% block content %}
 
 <style>
-.card-box{
-    background:white;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+/* ❌ HIDE MENU + WELCOME */
+.header-menu, .center-bar {
+    display: none !important;
 }
 
-.label{
-    font-weight:600;
-    color:#555;
+/* 🔥 CONTAINER */
+.view-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.value{
-    font-size:16px;
+/* 🔥 TITLE */
+.view-title {
+    text-align: center;
+    color: #0d6efd;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
 }
 
-.badge-open{background:#dbeafe;color:#1d4ed8;padding:5px 10px;border-radius:20px;}
-.badge-progress{background:#fef3c7;color:#b45309;padding:5px 10px;border-radius:20px;}
-.badge-closed{background:#dcfce7;color:#15803d;padding:5px 10px;border-radius:20px;}
+/* 🔥 GRID */
+.view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* 🔥 LABEL */
+.view-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* 🔥 VALUE BOX (SAME AS VIEW PROJECT) */
+.view-value {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 🔥 ICON */
+.field-icon {
+    width: 20px;
+    text-align: center;
+    color: #0d6efd;
+    opacity: 0.8;
+}
+
+/* 🔥 PROFILE IMAGE */
+.profile-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 🔥 CARD */
+.view-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+}
+
+/* 🔥 TOP BUTTON */
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* 🔥 STATUS COLORS */
+.badge-open {color:#1d4ed8;}
+.badge-progress {color:#b45309;}
+.badge-closed {color:#15803d;}
 </style>
 
-<div class="container mt-4">
+<div class="view-container">
 
-    <!-- 🔙 BACK BUTTON -->
-    <a href="/bug-list/" class="btn btn-secondary mb-3">⬅ Back</a>
+    <!-- 🔥 TOP ACTIONS -->
+    <div class="top-actions">
+        <a href="/bug-list/" class="btn btn-outline-primary btn-sm">
+            ← Back
+        </a>
+    </div>
 
-    <h3 class="mb-3">Bug Details 🐞</h3>
+    <h3 class="view-title">Bug Details 🐞</h3>
 
-    <div class="card-box">
+    <hr style="width:60px; margin:auto; border:2px solid #0d6efd; margin-bottom:25px;">
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="label">Title</div>
-                <div class="value">{{ bug.title }}</div>
+    <!-- 🔥 CARD -->
+    <div class="view-card">
+
+        <div class="view-grid">
+
+            <!-- LEFT -->
+            <div>
+
+                <p class="view-label">Title</p>
+                <p class="view-value">
+                    <i class="fa fa-bug field-icon"></i>
+                    {{ bug.title }}
+                </p>
+
+                <p class="view-label">Priority</p>
+                <p class="view-value">
+                    <i class="fa fa-flag field-icon"></i>
+                    {{ bug.priority }}
+                </p>
+
+                <p class="view-label">Reported By</p>
+                <p class="view-value">
+                    <i class="fa fa-user field-icon"></i>
+
+                    {% if bug.reported_by.image %}
+                        <img src="{{ bug.reported_by.image.url }}" class="profile-img">
+                    {% else %}
+                        <img src="https://via.placeholder.com/35" class="profile-img">
+                    {% endif %}
+
+                    <strong>{{ bug.reported_by.username }}</strong>
+                </p>
+
+                <p class="view-label">Created At</p>
+                <p class="view-value">
+                    <i class="fa fa-calendar field-icon"></i>
+                    {{ bug.created_at }}
+                </p>
+
             </div>
 
-            <div class="col-md-6">
-                <div class="label">Project</div>
-                <div class="value">{{ bug.project }}</div>
+            <!-- RIGHT -->
+            <div>
+
+                <p class="view-label">Project</p>
+                <p class="view-value">
+                    <i class="fa fa-folder field-icon"></i>
+                    {{ bug.project }}
+                </p>
+
+                <p class="view-label">Status</p>
+                <p class="view-value">
+                    <i class="fa fa-circle-info field-icon"></i>
+
+                    {% if bug.status == 'open' %}
+                        <span class="badge-open">Open</span>
+                    {% elif bug.status == 'in_progress' %}
+                        <span class="badge-progress">In Progress</span>
+                    {% else %}
+                        <span class="badge-closed">Closed</span>
+                    {% endif %}
+                </p>
+
+                <p class="view-label">Assigned To</p>
+                <p class="view-value">
+                    <i class="fa fa-user-circle field-icon"></i>
+
+                    {% if bug.assigned_to.image %}
+                        <img src="{{ bug.assigned_to.image.url }}" class="profile-img">
+                    {% else %}
+                        <img src="https://via.placeholder.com/35" class="profile-img">
+                    {% endif %}
+
+                    <strong>{{ bug.assigned_to.username }}</strong>
+                </p>
+
+                <p class="view-label">Last Updated</p>
+                <p class="view-value">
+                    <i class="fa fa-clock field-icon"></i>
+                    {{ bug.updated_at }}
+                </p>
+
             </div>
+
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="label">Priority</div>
-                <div class="value">{{ bug.priority }}</div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="label">Status</div>
-
-                {% if bug.status == 'open' %}
-                    <span class="badge-open">Open</span>
-                {% elif bug.status == 'in_progress' %}
-                    <span class="badge-progress">In Progress</span>
-                {% else %}
-                    <span class="badge-closed">Closed</span>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="label">Reported By</div>
-                <div class="value">{{ bug.reported_by }}</div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="label">Assigned To</div>
-                <div class="value">{{ bug.assigned_to }}</div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <div class="label">Description</div>
-            <div class="value">{{ bug.description }}</div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="label">Created At</div>
-                <div class="value">{{ bug.created_at }}</div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="label">Last Updated</div>
-                <div class="value">{{ bug.updated_at }}</div>
-            </div>
-        </div>
+        <!-- 🔥 DESCRIPTION FULL WIDTH -->
+        <p class="view-label mt-3">Description</p>
+        <p class="view-value">
+            <i class="fa fa-align-left field-icon"></i>
+            {{ bug.description }}
+        </p>
 
     </div>
 

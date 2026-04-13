@@ -1,32 +1,85 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<div class="container mt-4">
+<!-- 🔥 ADD THIS BLOCK (DO NOT REMOVE ANYTHING ELSE) -->
+<style>
 
-    <!-- TITLE -->
-    <h3 style="text-align:center; color:#0d6efd; font-weight:bold;">
-        View Project Report
-    </h3>
+/* ✅ ONLY APPLY ON THIS PAGE */
+.project-report-page .center-bar {
+    display: none !important;
+}
 
-    <!-- BUTTONS + SEARCH -->
-    <div class="mb-3 d-flex justify-content-between">
+.project-report-page a[href*="home"],
+.project-report-page a[href*="about"],
+.project-report-page a[href*="contact"],
+.project-report-page a[href*="account"],
+.project-report-page a[href*="logout"] {
+    display: none !important;
+}
 
-        <div>
-            <!-- ❌ Removed Copy & CSV -->
-            <a href="{% url 'export_projects_excel' %}" class="btn btn-success btn-sm">Excel</a>
-            <a href="{% url 'export_projects_pdf' %}" class="btn btn-danger btn-sm">PDF</a>
-        </div>
+/* 🔥 CLEAN ALIGNMENT */
+.container {
+    margin-top: 20px !important;
+}
 
-        <!-- ✅ SEARCH FORM -->
-        <form method="GET">
-            <input type="text" name="q" placeholder="Search..." 
-                   value="{{ request.GET.q }}"
-                   style="padding:6px 10px; border:1px solid #ccc; border-radius:6px;">
-        </form>
+</style>
+<div class="container mt-0 project-report-page">
 
+
+
+<!--back button-->
+
+
+    <!-- 🔙 BACK BUTTON -->
+    <div style="margin-bottom:10px;">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-sm">
+            ← Back
+        </a>
     </div>
 
-    <!-- TABLE -->
+    <h3 style="text-align:center; color:#0d6efd; font-weight:bold;margin: top -40px;">
+        View Project Report
+    </h3>
+    
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+
+    <!-- 🔥 SEARCH LEFT -->
+    <form method="GET" style="display:flex; gap:8px;">
+    
+    <input type="text" name="q" placeholder="Search..." 
+           value="{{ request.GET.q }}"
+           style="padding:6px 12px; border:1px solid #ccc; border-radius:6px; width:220px;">
+
+    <button type="submit" class="btn btn-primary btn-sm">
+        <i class="fa fa-search"></i>
+    </button>
+
+    <a href="{% url 'project_report' %}" class="btn btn-secondary btn-sm">
+        Reset
+    </a>
+
+</form>
+    <!-- 🔥 EXPORT RIGHT -->
+    <div>
+        <a href="{% url 'export_projects_excel' %}" class="btn btn-success btn-sm">Excel</a>
+        <a href="{% url 'export_projects_pdf' %}" class="btn btn-danger btn-sm">PDF</a>
+    </div>
+
+</div>
+
+    <!-- 🔥 ADD BADGE STYLE -->
+    <style>
+        .badge-status{
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:12px;
+            font-weight:500;
+        }
+        .active{background:#dcfce7;color:#15803d;}
+        .completed{background:#dbeafe;color:#1d4ed8;}
+        .on_hold{background:#fef3c7;color:#b45309;}
+    </style>
+
     <table class="table table-bordered table-hover text-center align-middle">
         <thead style="background-color:#f8f9fa;">
             <tr>
@@ -38,6 +91,10 @@
                 <th>Duration</th>
                 <th>Email</th>
                 <th>Department</th>
+
+                <!-- 🔥 NEW COLUMN -->
+                <th>Status</th>
+
                 <th>Action</th>
             </tr>
         </thead>
@@ -47,17 +104,12 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
 
-                <!-- PROJECT LEAD -->
                 <td style="display:flex; align-items:center; justify-content:center; gap:8px;">
                     
                     {% if p.project_lead.image %}
-                        <img src="{{ p.project_lead.image.url }}" 
-                             width="40" height="40" 
-                             style="border-radius:50%; object-fit:cover;">
+                        <img src="{{ p.project_lead.image.url }}" width="40" height="40" style="border-radius:50%;">
                     {% else %}
-                        <img src="https://via.placeholder.com/40" 
-                             width="40" height="40"
-                             style="border-radius:50%;">
+                        <img src="https://via.placeholder.com/40" width="40" height="40" style="border-radius:50%;">
                     {% endif %}
 
                     <span>{{ p.project_lead.username }}</span>
@@ -71,38 +123,39 @@
                 <td>{{ p.email }}</td>
                 <td>{{ p.department }}</td>
 
-                <!-- 🔥 UPDATED ACTION BUTTONS -->
+                <!-- 🔥 STATUS BADGE -->
                 <td>
-    <div style="display:flex; justify-content:center; gap:6px; flex-wrap:nowrap;">
-        
-        <a href="{% url 'edit_project' p.id %}" 
-           class="btn btn-info btn-sm text-white">
-            View
-        </a>
+                    {% if p.status == 'active' %}
+                        <span class="badge-status active">Active</span>
+                    {% elif p.status == 'completed' %}
+                        <span class="badge-status completed">Completed</span>
+                    {% else %}
+                        <span class="badge-status on_hold">On Hold</span>
+                    {% endif %}
+                </td>
 
-        <a href="{% url 'edit_project' p.id %}" 
-           class="btn btn-warning btn-sm">
-            Edit
-        </a>
+                <td>
+                    <div style="display:flex; justify-content:center; gap:6px; flex-wrap:nowrap;">
+                        
+                        <a href="{% url 'view_project' p.id %}" class="btn btn-info btn-sm text-white">View</a>
+                        <a href="{% url 'edit_project' p.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_project' p.id %}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure to delete?')">
+                            Delete
+                        </a>
 
-        <a href="{% url 'delete_project' p.id %}" 
-           class="btn btn-danger btn-sm"
-           onclick="return confirm('Are you sure to delete?')">
-            Delete
-        </a>
+                    </div>
+                </td>
 
-    </div>
-</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9">No data found</td>
+                <td colspan="10">No data found</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <!-- PAGINATION -->
     <div class="d-flex justify-content-between align-items-center mt-3">
 
         <p>
@@ -112,8 +165,7 @@
 
         <div>
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}" 
-                   class="btn btn-sm btn-outline-primary">Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-primary">Previous</a>
             {% endif %}
 
             <span class="mx-2">
@@ -121,8 +173,7 @@
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" 
-                   class="btn btn-sm btn-outline-primary">Next</a>
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-primary">Next</a>
             {% endif %}
         </div>
 

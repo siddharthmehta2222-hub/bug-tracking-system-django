@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -5,12 +7,10 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponse
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
-from .models import Project
+from .models import Notification, Project, Bug
 from django.core.paginator import Paginator
-
 from .models import Bug
 from .forms import BugForm, UserSignupForm
-
 import openpyxl
 from reportlab.pdfgen import canvas
 
@@ -94,23 +94,46 @@ def dashboardView(request):
 
     user = request.user
 
-    # 🔥 ROLE BASED DATA
-    if user.role in ['admin', 'manager']:
+    # ==================================================
+    # 🔔 NEW: NOTIFICATION COUNT (ADDED)
+    # ==================================================
+    from .models import Notification
+    unread_count = Notification.objects.filter(
+        user=user,
+        is_read=False
+    ).count()
+
+
+    # ==================================================
+    # 🎯 ROLE FLAGS (🔥 NEW - IMPORTANT FOR TEMPLATE)
+    # ==================================================
+    is_admin = user.role == 'admin'
+    is_manager = user.role == 'manager'
+    is_developer = user.role == 'developer'
+    is_tester = user.role == 'tester'
+
+
+    # ==================================================
+    # 🔥 ROLE BASED DATA (IMPROVED)
+    # ==================================================
+    if is_admin or is_manager:
         bugs = Bug.objects.all()
 
-    elif user.role == 'developer':
+    elif is_developer:
         bugs = Bug.objects.filter(assigned_to=user)
 
-    elif user.role == 'tester':
+    elif is_tester:
         bugs = Bug.objects.filter(reported_by=user)
 
     else:
         bugs = Bug.objects.none()
 
 
-    # 🔍 SEARCH + FILTER ✅ (ADDED)
-    search_query = request.GET.get('search')
-    status_filter = request.GET.get('status')
+    # ==================================================
+    # 🔍 SEARCH + FILTER (SAFE DEFAULT)
+    # ==================================================
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
 
     if search_query:
         bugs = bugs.filter(title__icontains=search_query)
@@ -119,28 +142,119 @@ def dashboardView(request):
         bugs = bugs.filter(status=status_filter)
 
 
-    # 📊 COUNTS ✅ (UPDATED AFTER FILTER)
+    # ==================================================
+    # 📊 BUG COUNTS (ROLE SAFE)
+    # ==================================================
     total_bugs = bugs.count()
     open_bugs = bugs.filter(status='open').count()
     progress_bugs = bugs.filter(status='in_progress').count()
     closed_bugs = bugs.filter(status='closed').count()
 
 
-    # 🔥 LATEST BUGS (AFTER FILTER)
+    # ==================================================
+    # 📁 PROJECT COUNTS
+    # ==================================================
+    total_projects = Project.objects.count()
+    active_projects = Project.objects.filter(status='active').count()
+    completed_projects = Project.objects.filter(status='completed').count()
+    on_hold_projects = Project.objects.filter(status='on_hold').count()
+
+
+    # ==================================================
+    # 👥 USER COUNT (ADMIN / MANAGER ONLY)
+    # ==================================================
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    total_users = User.objects.count() if (is_admin or is_manager) else 0
+
+
+    # ==================================================
+    # 🔥 LATEST BUGS (SMART BASED ON ROLE)
+    # ==================================================
     latest_bugs = bugs.order_by('-id')[:5]
 
 
+    # ==================================================
+    # 🎯 ROLE BASED EXTRA DATA
+    # ==================================================
+    developer_bugs = Bug.objects.filter(assigned_to=user).count() if is_developer else 0
+    tester_bugs = Bug.objects.filter(reported_by=user).count() if is_tester else 0
+
+
+    # ==================================================
+    # 🚀 NEW: PRIORITY COUNTS (ADVANCED UI)
+    # ==================================================
+    high_priority = bugs.filter(priority='high').count()
+    medium_priority = bugs.filter(priority='medium').count()
+    low_priority = bugs.filter(priority='low').count()
+    critical_priority = bugs.filter(priority='critical').count()
+
+
+    # ==================================================
+    # 🚀 NEW: STATUS % (FOR PROGRESS BARS / FUTURE UI)
+    # ==================================================
+    total = total_bugs if total_bugs > 0 else 1
+
+    open_percent = int((open_bugs / total) * 100)
+    progress_percent = int((progress_bugs / total) * 100)
+    closed_percent = int((closed_bugs / total) * 100)
+
+
+    # ==================================================
+    # 🎯 FINAL CONTEXT (UPGRADED)
+    # ==================================================
     context = {
+        # ROLE
+        'role': user.role,
+        'is_admin': is_admin,
+        'is_manager': is_manager,
+        'is_developer': is_developer,
+        'is_tester': is_tester,
+
+        # BUG DATA
         'total_bugs': total_bugs,
         'open_bugs': open_bugs,
         'progress_bugs': progress_bugs,
         'closed_bugs': closed_bugs,
         'bugs': latest_bugs,
-        'role': user.role
+
+        # PROJECT DATA
+        'total_projects': total_projects,
+        'active_projects': active_projects,
+        'completed_projects': completed_projects,
+        'on_hold_projects': on_hold_projects,
+
+        # USER DATA
+        'total_users': total_users,
+
+        # ROLE SPECIFIC
+        'developer_bugs': developer_bugs,
+        'tester_bugs': tester_bugs,
+
+        # SEARCH
+        'search_query': search_query,
+        'status_filter': status_filter,
+
+        # 🚀 ADVANCED DATA
+        'high_priority': high_priority,
+        'medium_priority': medium_priority,
+        'low_priority': low_priority,
+        'critical_priority': critical_priority,
+
+        'open_percent': open_percent,
+        'progress_percent': progress_percent,
+        'closed_percent': closed_percent,
+
+        # 🔔 NEW (IMPORTANT)
+        'unread_count': unread_count,
     }
 
     return render(request, "core/dashboard.html", context)
-
+# ==================================================
+# 🔥 FIXED STATUS FUNCTION
+# ==================================================
+@login_required
 def change_status(request, id, status):
     bug = get_object_or_404(Bug, id=id)
     bug.status = status
@@ -148,7 +262,9 @@ def change_status(request, id, status):
     return redirect('dashboard')
 
 
-
+# ==================================================
+# 🔥 FIXED DELETE BUG FUNCTION
+# ==================================================
 @login_required
 def delete_bug(request, id):
     bug = get_object_or_404(Bug, id=id)
@@ -247,9 +363,6 @@ def add_bug(request):
         # ✅ Reporter
         bug.reported_by = request.user
 
-        # 🔥 OPTIONAL: STORE TESTER CODE (if needed later)
-        # (right now we rely on request.user, so safe)
-
         # 🔥 AUTO ASSIGN DEVELOPER
         from django.contrib.auth import get_user_model
         User = get_user_model()
@@ -261,16 +374,51 @@ def add_bug(request):
         else:
             bug.assigned_to = request.user
 
-        bug.save()
+        bug.save()   # ✅ FIXED INDENT
 
-        messages.success(request, "Bug Added Successfully ✅")
+        # 🔔 notification for creator
+        Notification.objects.create(
+            user=request.user,
+            message="Bug added successfully"
+        )
 
+        messages.success(request, "Bug Added Successfully")
         return redirect('bug_list')
 
     # 🔥🔥🔥 FINAL FIX (DO NOT REMOVE)
     return render(request, 'core/add_bug.html', {
         'projects': projects
     })
+
+# =====================================
+# 🔔 NOTIFICATIONS
+# =====================================
+
+@login_required
+def notifications_view(request):
+    from .models import Notification
+
+    data = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+
+    return render(request, 'core/notifications.html', {
+        'notifications': data
+    })
+
+
+@login_required
+def mark_read(request, id):
+    from .models import Notification
+
+    try:
+        notif = Notification.objects.get(id=id, user=request.user)
+        notif.is_read = True
+        notif.save()
+    except Notification.DoesNotExist:
+        pass
+
+    return redirect('notifications')
 #=================================================
 # ADD PROJECT
 #=================================================
@@ -289,6 +437,9 @@ def add_project(request):
         department = request.POST.get('department')
         description = request.POST.get('description')
         project_lead_id = request.POST.get('project_lead')
+
+        # 🔥 NEW: GET STATUS
+        status = request.POST.get('status') or 'active'
 
         # ✅ FIX PROJECT LEAD
         project_lead = None
@@ -309,31 +460,36 @@ def add_project(request):
             email=email,
             department=department,
             description=description,
-            project_lead=project_lead
+            project_lead=project_lead,
+
+            # 🔥 NEW FIELD SAVED
+            status=status
         )
 
         messages.success(request, "Project Added Successfully ✅")
-        return redirect('project_report')  # you can change later
+        return redirect('project_report')
 
     return render(request, 'core/add_project.html', {'users': users})
-
 #===============================================
 #project report
 #===============================================
 @login_required
 def project_report(request):
+    from django.db.models import Q
+
     query = request.GET.get('q')
 
     projects = Project.objects.all().order_by('-id')
 
-    # 🔍 SEARCH
+    # 🔍 SEARCH (FIXED + IMPROVED)
     if query:
         projects = projects.filter(
             Q(name__icontains=query) |
             Q(client_name__icontains=query) |
             Q(email__icontains=query) |
             Q(department__icontains=query) |
-            Q(project_lead_username_icontains=query)
+            Q(project_lead__username__icontains=query) |   # ✅ FIXED
+            Q(status__icontains=query)                     # 🔥 ADDED
         )
 
     # 📄 PAGINATION (IMPORTANT)
@@ -342,9 +498,19 @@ def project_report(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'core/project_report.html', {
-        'projects': page_obj,   # 🔥 change here
+        'projects': page_obj,
         'page_obj': page_obj,
     })
+#=================================================
+# view project  
+#=================================================
+ 
+def view_project(request, id):
+    project = Project.objects.get(id=id)
+    return render(request, 'core/view_project.html', {'project': project})
+
+
+
 # ==================================================
 # EXPORT PROJECTS EXCEL
 # ==================================================
@@ -511,7 +677,10 @@ def edit_project(request, id):
         messages.success(request, "Project updated successfully ✅")
         return redirect('project_report')
 
-    return render(request, 'core/edit_project.html', {'project': project})
+    return render(request, 'core/edit_project.html', {
+        'project': project,
+        'users': User.objects.all()
+    })
 
 # ==================================================
 # HOME
@@ -551,11 +720,31 @@ def add_user(request):
     return render(request, 'core/add_user.html')
 
 
-@login_required
 def user_list(request):
-    users = User.objects.all().order_by('-id')
-    return render(request, 'core/user_list.html', {'users': users})
+    users = User.objects.all().order_by('id')
 
+    # 🔍 SEARCH
+    search_query = request.GET.get('search')
+    role_filter = request.GET.get('role')
+
+    if search_query:
+        users = users.filter(
+            username__icontains=search_query
+        ) | users.filter(
+            email__icontains=search_query
+        )
+
+    if role_filter:
+        users = users.filter(role=role_filter)
+
+    # 🔥 PAGINATION
+    paginator = Paginator(users, 5)  # 5 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'core/user_list.html', {
+        'page_obj': page_obj
+    })
 
 @login_required
 def delete_user(request, id):
@@ -598,7 +787,7 @@ def edit_user(request, id):
 # CHANGE PASSWORD
 # ==================================================
 @login_required
-@admin_only
+
 def change_password(request, id):
     user = get_object_or_404(User, id=id)
 
@@ -618,6 +807,12 @@ def change_password(request, id):
 
     return render(request, 'core/change_password.html', {'user': user})
 
+# ==================================================
+# MY PROFILE    
+# ==================================================
+@login_required
+def my_profile(request):
+    return render(request, 'core/my_profile.html', {'user': request.user})
 
 # ==================================================
 # EXPORT USERS EXCEL

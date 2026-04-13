@@ -4,340 +4,439 @@
 {% block content %}
 
 <style>
-body{
-    background: linear-gradient(to right, #eef2ff, #f8fafc);
-    font-family: 'Segoe UI', sans-serif;
+
+/* REMOVE LEFT GAP */
+.container{
+    max-width:100% !important;
+    padding-left:5px !important;
 }
 
-/* HEADER */
-.dashboard-header{
+/* LAYOUT */
+.main-layout{
     display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
-    flex-wrap:wrap;
-    gap:10px;
 }
 
-/* 🔥 PREMIUM CARDS */
+/* SIDEBAR */
+.sidebar{
+    width:260px;
+    background:linear-gradient(#0b3c8c,#0f4ec7);
+    color:white;
+    min-height:100vh;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+/* LINKS */
+.sidebar a, .dropdown-btn{
+    display:block;
+    padding:13px 18px;
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+    border-bottom:1px solid rgba(255,255,255,0.15);
+    background:transparent;
+    border:none;
+    width:100%;
+    text-align:left;
+    cursor:pointer;
+    transition:all 0.25s ease;
+}
+
+/* ICON GLOW */
+.sidebar a i, .dropdown-btn i{
+    margin-right:10px;
+    transition:0.3s;
+}
+
+/* HOVER EFFECT */
+.sidebar a:not(.dashboard-link):hover,
+.dropdown-btn:hover{
+    background:rgba(0,0,0,0.35);
+    transform:translateX(6px);
+}
+
+.sidebar a:not(.dashboard-link):hover i,
+.dropdown-btn:hover i{
+    color:#ffd700;
+    transform:scale(1.1);
+}
+
+/* DASHBOARD WHITE CLICKABLE */
+.dashboard-link{
+    background:transparent;
+    color:white;
+    font-weight:600;
+    
+    cursor:default
+}
+
+/* ACTIVE */
+.sidebar .active{
+    background:white;
+    color:#0b3c8c;
+    font-weight:600;
+    border-radius:6px;
+    margin:4px;
+}
+
+/* DROPDOWN */
+.dropdown-container{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.35s ease;
+    background:rgba(255,255,255,0.05);
+}
+
+.dropdown-container a{
+    padding-left:40px;
+    font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+/* CONTENT */
+.content{
+    flex:1;
+    padding:20px;
+}
+
+/* CARDS */
 .cards{
     display:grid;
-    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
     gap:20px;
 }
 
 .card-box{
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(10px);
-    padding:22px;
-    border-radius:18px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    padding:28px;
+    border-radius:14px;
+    color:white;
+    font-weight:bold;
+    font-size:16px;
     transition:0.3s;
-    position:relative;
-    overflow:hidden;
-}
-
-.card-box::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:0;
-    width:5px;
-    height:100%;
 }
 
 .card-box:hover{
-    transform:translateY(-10px) scale(1.03);
-    box-shadow:0 20px 40px rgba(0,0,0,0.12);
-}
-
-.card-title{
-    font-size:14px;
-    color:#64748b;
-}
-
-.card-value{
-    font-size:34px;
-    font-weight:bold;
+    transform:translateY(-5px);
+    box-shadow:0 10px 20px rgba(0,0,0,0.2);
 }
 
 /* COLORS */
-.red::before{background:#ef4444;}
-.blue::before{background:#3b82f6;}
-.yellow::before{background:#f59e0b;}
-.green::before{background:#22c55e;}
+.c1{background:#f97316;}
+.c2{background:#3b82f6;}
+.c3{background:#f59e0b;}
+.c4{background:#22c55e;}
+.c5{background:#6366f1;}
+.c6{background:#ef4444;}
 
-/* ICON */
-.card-icon{
-    position:absolute;
-    top:15px;
-    right:15px;
-    font-size:22px;
-    opacity:0.2;
-}
-
-/* CONTAINERS */
-.chart-container, .table-container{
-    background: rgba(255,255,255,0.8);
-    backdrop-filter: blur(8px);
-    padding:25px;
-    border-radius:18px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+/* CHART */
+.chart-container{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* TABLE */
-.table{
-    border-radius:10px;
-    overflow:hidden;
-}
-.table th{
-    background:#f1f5f9;
-}
-.table td, .table th{
-    vertical-align:middle;
+.table-container{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-top:25px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* BUTTONS */
-.btn{
-    border-radius:10px !important;
-    font-size:13px;
-    padding:6px 12px;
-    transition:0.2s;
-}
-.btn:hover{
-    transform:scale(1.08);
-}
-
-/* BADGES */
-.badge{
+/* ROLE BADGE */
+.role-badge{
     padding:6px 12px;
     border-radius:20px;
     font-size:12px;
-    font-weight:500;
+    font-weight:bold;
+    color:white;
 }
-.badge-open{background:#dbeafe;color:#1d4ed8;}
-.badge-progress{background:#fef3c7;color:#b45309;}
-.badge-closed{background:#dcfce7;color:#15803d;}
+.admin{background:#ef4444;}
+.manager{background:#3b82f6;}
+.developer{background:#22c55e;}
+.tester{background:#f59e0b;}
 
-/* SEARCH */
-input, select{
-    border-radius:10px !important;
-    box-shadow:none !important;
-}
 
-/* PAGINATION */
-.pagination .page-link{
-    border-radius:8px !important;
-    margin:0 3px;
-}
+
 </style>
 
-<!-- HEADER -->
-<div class="dashboard-header">
-    <h2>Dashboard 🚀</h2>
+<div class="main-layout">
 
-    <p>
-        <strong>Logged in as:</strong> 
-        <span style="color:#3b82f6;">{{ request.user.email }}</span> 
-        ({{ request.user.role }})
-    </p>
+<!-- SIDEBAR -->
+<div class="sidebar">
 
-    {% if request.user.role == 'tester' or request.user.role == 'admin' %}
-    <a href="{% url 'add_bug' %}" class="btn btn-primary shadow">
-        + Report Bug
+    <!-- DASHBOARD (ALL USERS / NO EFFECT) -->
+    <a href="{% url 'dashboard' %}" class="dashboard-link">
+        <i class="fa fa-dashboard"></i> Dashboard
+    </a>
+
+    <!-- PROJECTS (ADMIN + MANAGER ONLY) -->
+    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+    <a href="{% url 'project_report' %}">
+        <i class="fa fa-folder"></i> Projects
     </a>
     {% endif %}
-</div>
 
+    <!-- BUGS (ALL USERS) -->
+    <a href="{% url 'bug_list' %}">
+        <i class="fa fa-bug"></i> Bugs
+    </a>
 
-<!-- CARDS -->
-<div class="cards">
+    <!-- USERS (ADMIN + MANAGER ONLY) -->
+    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+    <a href="{% url 'user_list' %}">
+        <i class="fa fa-users"></i> Users
+    </a>
+    {% endif %}
 
-    <div class="card-box red">
-        <div class="card-icon">🐞</div>
-        <div class="card-title">Total Bugs</div>
-        <div class="card-value">{{ total_bugs|default:0 }}</div>
+    <!-- ADD NEW -->
+    {% if request.user.role == 'admin' or request.user.role == 'manager' or request.user.role == 'tester' %}
+    <button class="dropdown-btn">
+        <i class="fa fa-plus"></i> Add New ▼
+    </button>
+    <div class="dropdown-container">
+
+        <!-- ADD BUG (ALL EXCEPT maybe restrict later if needed) -->
+        <a href="{% url 'add_bug' %}">Add New Bug</a>
+
+        <!-- ADMIN + MANAGER -->
+        {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+        <a href="{% url 'add_project' %}">Add New Project</a>
+        <a href="{% url 'add_user' %}">Add New User</a>
+        {% endif %}
+
     </div>
+    {% endif %}
 
-    <div class="card-box blue">
-        <div class="card-icon">📂</div>
-        <div class="card-title">Open Bugs</div>
-        <div class="card-value">{{ open_bugs|default:0 }}</div>
+    <!-- REPORTS (ADMIN + MANAGER ONLY) -->
+    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+    <button class="dropdown-btn">
+        <i class="fa fa-bar-chart"></i> Reports ▼
+    </button>
+    <div class="dropdown-container">
+        <a href="{% url 'bug_list' %}">Bug Report</a>
+        <a href="{% url 'user_list' %}">User Report</a>
+        <a href="{% url 'project_report' %}">Project Report</a>
     </div>
+    {% endif %}
 
-    <div class="card-box yellow">
-        <div class="card-icon">⚙️</div>
-        <div class="card-title">In Progress</div>
-        <div class="card-value">{{ progress_bugs|default:0 }}</div>
-    </div>
+    <!-- CHANGE PASSWORD (ALL) -->
+    <a href="{% url 'change_password' request.user.id %}">
+        <i class="fa fa-lock"></i> Change Password
+    </a>
 
-    <div class="card-box green">
-        <div class="card-icon">✅</div>
-        <div class="card-title">Closed Bugs</div>
-        <div class="card-value">{{ closed_bugs|default:0 }}</div>
-    </div>
-
-</div>
-
-<hr style="margin:35px 0;">
-
-
-<!-- CHART + SUMMARY -->
-<div class="row g-4">
-
-<div class="col-md-6">
-    <div class="chart-container text-center">
-        <h5>Bug Status Overview 📊</h5>
-        <canvas id="bugChart"></canvas>
-    </div>
-</div>
-
-<div class="col-md-6">
-    <div class="chart-container">
-        <h5>Quick Summary ⚡</h5>
-        <hr>
-        <p>Total: <b>{{ total_bugs }}</b></p>
-        <p>Open: <b style="color:#3b82f6;">{{ open_bugs }}</b></p>
-        <p>Progress: <b style="color:#f59e0b;">{{ progress_bugs }}</b></p>
-        <p>Closed: <b style="color:#22c55e;">{{ closed_bugs }}</b></p>
-    </div>
-</div>
+    <!-- LOGOUT (ALL) -->
+    <a href="{% url 'logout' %}">
+        <i class="fa fa-sign-out"></i> Sign out
+    </a>
 
 </div>
+<!-- CONTENT -->
+<div class="content">
 
+    <h2>
+        Dashboard 
+        
+    </h2>
 
-<!-- TABLE -->
-<div class="table-container mt-4">
+    <!-- CARDS -->
+    <div class="cards mt-3">
 
-<h5>Latest Bugs 🔥</h5>
+        {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+        <div class="card-box c5">Total Projects<br>{{ total_projects }}</div>
+        <div class="card-box c6">Users<br>{{ total_users }}</div>
+        {% endif %}
 
-<!-- 🔥 NEW SEARCH + FILTER -->
-<form method="GET" class="row g-2 mb-3">
+        {% if request.user.role == 'developer' %}
+        <div class="card-box c2">My Bugs<br>{{ developer_bugs }}</div>
+        {% endif %}
 
-    <div class="col-md-4">
-        <input type="text" name="search" class="form-control"
-               placeholder="Search bugs..."
-               value="{{ request.GET.search }}">
+        {% if request.user.role == 'tester' %}
+        <div class="card-box c3">Reported Bugs<br>{{ tester_bugs }}</div>
+        {% endif %}
+
+        <div class="card-box c1">Total Bugs<br>{{ total_bugs }}</div>
+        <div class="card-box c2">Open Bugs<br>{{ open_bugs }}</div>
+        <div class="card-box c3">In Progress<br>{{ progress_bugs }}</div>
+        <div class="card-box c4">Closed Bugs<br>{{ closed_bugs }}</div>
+
     </div>
 
-    <div class="col-md-3">
-        <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Open</option>
-            <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-            <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
-        </select>
+    <!-- CHARTS ONLY FOR ADMIN/MANAGER -->
+    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+    <div class="row mt-4">
+
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h6>Bug Status Overview</h6>
+                <canvas id="bugChart"></canvas>
+                
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h6>Project Status Overview</h6>
+                <canvas id="projectChart"></canvas>
+            </div>
+        </div>
+
     </div>
+    {% endif %}
 
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-dark w-100">Filter</button>
+    <!-- TABLE TITLE CHANGE -->
+    <div class="table-container">
+
+        <h5>
+            {% if request.user.role == 'developer' %}
+                My Assigned Bugs 🛠️
+            {% elif request.user.role == 'tester' %}
+                Reported Bugs 🧪
+            {% else %}
+                Latest Bugs 🔥
+            {% endif %}
+        </h5>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Assigned</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for bug in bugs %}
+            <tr>
+                <td>{{ bug.title }}</td>
+                <td>{{ bug.status }}</td>
+                <td>{{ bug.priority }}</td>
+                <td>{{ bug.assigned_to }}</td>
+
+                <td>
+
+                     <!-- ADMIN & MANAGER -->
+    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+
+        <a href="{% url 'edit_bug' bug.id %}" class="btn btn-warning btn-sm">Edit</a>
+
+        <a href="{% url 'delete_bug' bug.id %}" class="btn btn-danger btn-sm">Delete</a>
+
+        {% if bug.status == 'open' %}
+        <a href="{% url 'change_status' bug.id 'in_progress' %}" class="btn btn-info btn-sm">Start</a>
+        {% elif bug.status == 'in_progress' %}
+        <a href="{% url 'change_status' bug.id 'closed' %}" class="btn btn-dark btn-sm">Close</a>
+        {% endif %}
+
+    {% endif %}
+
+
+    <!-- DEVELOPER -->
+    {% if request.user.role == 'developer' %}
+
+        {% if bug.assigned_to == request.user %}
+
+            {% if bug.status == 'open' %}
+            <a href="{% url 'change_status' bug.id 'in_progress' %}" class="btn btn-info btn-sm">Start</a>
+            {% elif bug.status == 'in_progress' %}
+            <a href="{% url 'change_status' bug.id 'closed' %}" class="btn btn-success btn-sm">Mark Done</a>
+            {% endif %}
+
+        {% endif %}
+
+    {% endif %}
+
+
+    <!-- TESTER -->
+    {% if request.user.role == 'tester' %}
+
+    {% if bug.reported_by == request.user %}
+
+        {% if bug.status == 'closed' %}
+            <span class="badge bg-success">Verified</span>
+        {% else %}
+            <span class="badge bg-warning text-dark">Pending</span>
+        {% endif %}
+
+    {% else %}
+        <span class="badge bg-secondary">View Only</span>
+    {% endif %}
+
+    {% endif %}
+
+                </td>
+
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
     </div>
-
-    <div class="col-md-2">
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary w-100">Reset</a>
-    </div>
-
-</form>
-
-
-<table class="table table-hover">
-<thead>
-<tr>
-<th>Title</th>
-<th>Status</th>
-<th>Priority</th>
-<th>Assigned</th>
-<th>Action</th>
-</tr>
-</thead>
-
-<tbody>
-
-{% for bug in bugs %}
-<tr>
-<td>{{ bug.title }}</td>
-
-<td>
-{% if bug.status == 'open' %}
-<span class="badge badge-open">Open</span>
-{% elif bug.status == 'in_progress' %}
-<span class="badge badge-progress">In Progress</span>
-{% else %}
-<span class="badge badge-closed">Closed</span>
-{% endif %}
-</td>
-
-<td>{{ bug.priority }}</td>
-<td>{{ bug.assigned_to }}</td>
-<td>
-
-{% if role == 'admin' or role == 'manager' %}
-    <a href="{% url 'edit_bug' bug.id %}" class="btn btn-warning btn-sm">Edit</a>
-
-    <a href="{% url 'delete_bug' bug.id %}" 
-       onclick="return confirm('Are you sure to delete this bug?')" 
-       class="btn btn-danger btn-sm">Delete</a>
-{% endif %}
-
-{% if bug.status == 'open' %}
-    <a href="{% url 'change_status' bug.id 'in_progress' %}" 
-       onclick="return confirm('Start this bug?')" 
-       class="btn btn-info btn-sm">Start</a>
-
-{% elif bug.status == 'in_progress' %}
-    <a href="{% url 'change_status' bug.id 'closed' %}" 
-       onclick="return confirm('Close this bug?')" 
-       class="btn btn-success btn-sm">Close</a>
-{% endif %}
-
-</td>
-</tr>
-
-{% empty %}
-<tr>
-<td colspan="5" class="text-center text-muted">No Bugs 😔</td>
-</tr>
-{% endfor %}
-
-</tbody>
-</table>
 
 </div>
+</div>
 
+<!-- DROPDOWN FIX -->
+<script>
+document.querySelectorAll(".dropdown-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+        let dropdown = this.nextElementSibling;
+
+        document.querySelectorAll(".dropdown-container").forEach(d => {
+            if (d !== dropdown) d.style.maxHeight = null;
+        });
+
+        dropdown.style.maxHeight = dropdown.style.maxHeight ? null : dropdown.scrollHeight + "px";
+    });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 {{ open_bugs|json_script:"openData" }}
 {{ progress_bugs|json_script:"progressData" }}
 {{ closed_bugs|json_script:"closedData" }}
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ active_projects|json_script:"activeProjects" }}
+{{ completed_projects|json_script:"completedProjects" }}
+{{ on_hold_projects|json_script:"onHoldProjects" }}
 
 <script>
-const openBugs = JSON.parse(document.getElementById('openData').textContent);
-const progressBugs = JSON.parse(document.getElementById('progressData').textContent);
-const closedBugs = JSON.parse(document.getElementById('closedData').textContent);
+if(document.getElementById('bugChart')){
+new Chart(document.getElementById('bugChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Open','In Progress','Closed'],
+        datasets: [{
+            data: [
+                JSON.parse(document.getElementById('openData').textContent),
+                JSON.parse(document.getElementById('progressData').textContent),
+                JSON.parse(document.getElementById('closedData').textContent)
+            ],
+            backgroundColor: ['#3b82f6','#f59e0b','#22c55e']
+        }]
+    }
+});
+}
 
-const ctx = document.getElementById('bugChart');
-
-if(openBugs + progressBugs + closedBugs > 0){
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Open', 'In Progress', 'Closed'],
-            datasets: [{
-                data: [openBugs, progressBugs, closedBugs],
-                backgroundColor: ['#3b82f6','#f59e0b','#22c55e'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive:true,
-            plugins:{
-                legend:{position:'bottom'}
-            }
-        }
-    });
-}else{
-    ctx.parentElement.innerHTML = "<p style='color:#64748b'>No data available 📊</p>";
+if(document.getElementById('projectChart')){
+new Chart(document.getElementById('projectChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Active','Completed','On Hold'],
+        datasets: [{
+            data: [
+                JSON.parse(document.getElementById('activeProjects').textContent),
+                JSON.parse(document.getElementById('completedProjects').textContent),
+                JSON.parse(document.getElementById('onHoldProjects').textContent)
+            ],
+            backgroundColor: ['#3b82f6','#22c55e','#ef4444']
+        }]
+    }
+});
 }
 </script>
 

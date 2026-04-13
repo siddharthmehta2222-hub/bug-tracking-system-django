@@ -41,8 +41,13 @@ urlpatterns = [
     path('project-report/', views.project_report, name='project_report'),
     path('delete-project/<int:id>/', views.delete_project, name='delete_project'),
     path('edit-project/<int:id>/', views.edit_project, name='edit_project'),
+    path('view-project/<int:id>/', views.view_project, name='view_project'),
     path('view-bug/<int:id>/', views.view_bug, name='view_bug'),
     path('edit-bug/<int:id>/', views.edit_bug, name='edit_bug'),
+    path('my-profile/', views.my_profile, name='my_profile'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('mark-read/<int:id>/', views.mark_read, name='mark_read'),
+
 
     # ===============================
     # EXPORT FEATURES

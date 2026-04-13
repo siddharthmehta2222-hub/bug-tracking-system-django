@@ -1,0 +1,191 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<style>
+/* ❌ HIDE MENU + WELCOME ONLY FOR VIEW PAGE */
+.header-menu, .center-bar {
+    display: none !important;
+}
+
+/* 🔥 MATCH EDIT PAGE STYLE */
+.view-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.view-title {
+    text-align: center;
+    color: #0d6efd;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.view-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* 🔥 BOX STYLE */
+.view-value {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 🔥 ICON STYLE IMPROVED */
+.field-icon {
+    width: 20px;
+    text-align: center;
+    color: #0d6efd;
+    opacity: 0.8;
+}
+
+/* 🔥 PROFILE IMAGE */
+.profile-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* 🔥 CARD */
+.view-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+/* 🔥 HOVER EFFECT */
+.view-card:hover {
+    transform: translateY(-2px);
+}
+
+/* 🔥 BUTTON ALIGN */
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+</style>
+
+<div class="view-container">
+
+    <!-- 🔥 TOP BUTTONS -->
+    <div class="top-actions">
+        <a href="{% url 'project_report' %}" class="btn btn-outline-primary btn-sm">
+            ← Back
+        </a>
+
+        <button onclick="window.print()" class="btn btn-success btn-sm">
+            🖨 Print / PDF
+        </button>
+    </div>
+
+    <h3 class="view-title">View Project</h3>
+
+    <!-- 🔥 DIVIDER -->
+    <hr style="width:60px; margin:auto; border:2px solid #0d6efd; margin-bottom:25px;">
+
+    <!-- 🔥 CARD -->
+    <div class="view-card">
+
+        <div class="view-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+                <p class="view-label">Project Name</p>
+                <p class="view-value">
+                    <i class="fa fa-folder field-icon"></i>
+                    {{ project.name }}
+                </p>
+
+                <p class="view-label">Submission Date</p>
+                <p class="view-value">
+                    <i class="fa fa-calendar field-icon"></i>
+                    {{ project.submission_date }}
+                </p>
+
+                <p class="view-label">Duration</p>
+                <p class="view-value">
+                    <i class="fa fa-clock field-icon"></i>
+                    {{ project.duration }}
+                </p>
+
+                <p class="view-label">Client Name</p>
+                <p class="view-value">
+                    <i class="fa fa-user field-icon"></i>
+                    {{ project.client_name }}
+                </p>
+
+                <p class="view-label">Project Lead</p>
+                <p class="view-value">
+                    <i class="fa fa-user-circle field-icon"></i>
+
+                    {% if project.project_lead.image %}
+                        <img src="{{ project.project_lead.image.url }}" class="profile-img">
+                    {% else %}
+                        <img src="https://via.placeholder.com/35" class="profile-img">
+                    {% endif %}
+
+                    <strong>{{ project.project_lead.username }}</strong>
+                </p>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div>
+                <p class="view-label">Client Address</p>
+                <p class="view-value">
+                    <i class="fa fa-location-dot field-icon"></i>
+                    {{ project.client_address }}
+                </p>
+
+                <p class="view-label">Phone</p>
+                <p class="view-value">
+                    <i class="fa fa-phone field-icon"></i>
+                    {{ project.phone }}
+                </p>
+
+                <p class="view-label">Email</p>
+                <p class="view-value">
+                    <i class="fa fa-envelope field-icon"></i>
+                    {{ project.email }}
+                </p>
+
+                <p class="view-label">Department</p>
+                <p class="view-value">
+                    <i class="fa fa-building field-icon"></i>
+                    {{ project.department }}
+                </p>
+
+                <p class="view-label">Description</p>
+                <p class="view-value">
+                    <i class="fa fa-align-left field-icon"></i>
+                    {{ project.description }}
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
