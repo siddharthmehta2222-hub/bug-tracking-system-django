@@ -424,7 +424,7 @@ def mark_read(request, id):
 #=================================================
 @login_required
 def add_project(request):
-    users = User.objects.all()
+    users = User.objects.filter(role='manager' , is_active=True)
 
     if request.method == "POST":
         name = request.POST.get('name')
