@@ -2,10 +2,13 @@
 
 {% block content %}
 
+{% load static %}
+
 <style>
 .header-menu, .center-bar {
     display: none !important;
 }    
+
 .table-container{
     background:white;
     padding:25px;
@@ -19,11 +22,41 @@
     font-size:12px;
 }
 
+/* STATUS COLORS (UNCHANGED) */
 .badge-open{background:#dbeafe;color:#1d4ed8;}
 .badge-progress{background:#fef3c7;color:#b45309;}
 .badge-closed{background:#dcfce7;color:#15803d;}
 
-/* 🔥 NEW BUTTON STYLE (LIKE USER LIST) */
+/* 🔥 UPDATED PRIORITY COLORS (STRONG & DARK) */
+.priority-low{
+    background:#16a34a !important;
+    color:white !important;
+    font-weight:600;
+}
+
+.priority-medium{
+    background:#f97316 !important;
+    color:white !important;
+    font-weight:600;
+}
+
+.priority-high{
+    background:#dc2626 !important;
+    color:white !important;
+    font-weight:600;
+}
+
+/* USER IMAGE */
+.user-img{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #e2e8f0;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* BUTTONS */
 .action-buttons .btn{
     padding:5px 12px;
     font-size:12px;
@@ -38,15 +71,13 @@
 
 <div class="container mt-4">
 
-    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Bug List 🐞</h3>
 
         <div>
-            <!-- 🔙 LEFT SIDE BACK BUTTON -->
-    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
-        ← Back
-    </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                ← Back
+            </a>
             <a href="{% url 'export_bugs_excel' %}" class="btn btn-success btn-sm me-2">
                 📥 Excel
             </a>
@@ -56,7 +87,6 @@
         </div>
     </div>
 
-    <!-- 🔍 SEARCH + FILTER -->
     <form method="GET" class="row mb-4 g-2">
 
         <div class="col-md-4">
@@ -85,7 +115,6 @@
 
     </form>
 
-    <!-- 📋 TABLE -->
     <div class="table-container">
 
         <table class="table table-hover align-middle">
@@ -97,7 +126,7 @@
                     <th>Priority</th>
                     <th>Status</th>
                     <th>Assigned To</th>
-                    <th>Action</th> <!-- 🔥 NEW -->
+                    <th>Action</th>
                 </tr>
             </thead>
 
@@ -106,13 +135,20 @@
             {% for bug in bugs %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td><strong>{{ bug.title }}</strong></td>
-                <td>{{ bug.project }}</td>
 
+                <td><strong>{{ bug.title }}</strong></td>
+
+                <td>{{ bug.project.name }}</td>
+
+                <!-- 🔥 UPDATED PRIORITY COLORS -->
                 <td>
-                    <span class="badge bg-warning text-dark">
-                        {{ bug.priority }}
-                    </span>
+                    {% if bug.priority == 'low' %}
+                        <span class="badge priority-low">Low</span>
+                    {% elif bug.priority == 'medium' %}
+                        <span class="badge priority-medium">Medium</span>
+                    {% else %}
+                        <span class="badge priority-high">High</span>
+                    {% endif %}
                 </td>
 
                 <td>
@@ -125,9 +161,23 @@
                     {% endif %}
                 </td>
 
-                <td>{{ bug.assigned_to }}</td>
+                <td class="d-flex align-items-center gap-2">
 
-                <!-- 🔥 NEW PROFESSIONAL BUTTONS -->
+                    <a href="/view-user/{{ bug.assigned_to.id }}/">
+                        {% if bug.assigned_to and bug.assigned_to.image %}
+                            <img src="{{ bug.assigned_to.image.url }}" class="user-img">
+                        {% else %}
+                            <img src="{% static 'images/default-user.png' %}" class="user-img">
+                        {% endif %}
+                    </a>
+
+                    <a href="/view-user/{{ bug.assigned_to.id }}/" 
+                       style="text-decoration:none;color:#333;">
+                        {{ bug.assigned_to.username }}
+                    </a>
+
+                </td>
+
                 <td class="action-buttons">
                     <a href="/view-bug/{{ bug.id }}/" class="btn btn-view btn-sm">View</a>
                     <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Edit</a>
@@ -148,7 +198,6 @@
             </tbody>
         </table>
 
-        <!-- 📄 PAGINATION -->
         <div class="d-flex justify-content-between align-items-center mt-3">
 
             <p>

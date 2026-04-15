@@ -43,6 +43,12 @@ class User(AbstractUser):
 # ==================================================
 # PROJECT MODEL (UPDATED 🔥)
 # ==================================================
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
 class Project(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
@@ -75,10 +81,13 @@ class Project(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-    # ✅ FIXED METHOD NAME (_str_)
-    def _str_(self):
-        return self.name
+    # ✅🔥 FINAL FIX (VERY IMPORTANT)
+    def __str__(self):
+        return self.name if self.name else "Unnamed Project"
 
+    # 🔥 OPTIONAL (GOOD FOR DEBUGGING / ADMIN)
+    def get_status_display_label(self):
+        return dict(self._meta.get_field('status').choices).get(self.status, "Unknown")
 
 # ==================================================
 # BUG MODEL
