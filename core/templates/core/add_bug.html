@@ -1,271 +1,253 @@
 {% load static %}
-<!DOCTYPE html>
-<html>
+
+<!DOCTYPE html><html>
 <head>
-    <title>Add Bug</title>
+    <title>Add Bug</title><!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- 🔥 FONT AWESOME (FOR ICONS) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- 🔥 FONT AWESOME (FOR ICONS) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    body {
+        background-color: #f5f7fb;
+    }
 
-    <style>
-        body {
-            background-color: #f5f7fb;
-        }
+    .top-bar {
+        background: #0d6efd;
+        color: white;
+        padding: 6px 0;
+        font-size: 14px;
+    }
 
-        .top-bar {
-            background: #0d6efd;
-            color: white;
-            padding: 6px 0;
-            font-size: 14px;
-        }
+    .navbar {
+        background: white;
+    }
 
-        .navbar {
-            background: white;
-        }
+    /* ❌ HIDE MENU LIKE VIEW PROJECT */
+    .navbar .nav {
+        display: none !important;
+    }
 
-        /* ❌ HIDE MENU LIKE VIEW PROJECT */
-        .navbar .nav {
-            display: none !important;
-        }
+    /* 🔥 SAME STYLE */
+    .form-card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+    }
 
-        /* 🔥 SAME STYLE */
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-        }
+    .title-small {
+        color: #6c757d;
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
 
-        .title-small {
-            color: #6c757d;
-            font-size: 13px;
-            letter-spacing: 1px;
-        }
+    .title-main {
+        color: #0d6efd;
+        font-weight: 600;
+    }
 
-        .title-main {
-            color: #0d6efd;
-            font-weight: 600;
-        }
+    .project-row {
+        display: flex;
+        gap: 10px;
+    }
 
-        .project-row {
-            display: flex;
-            gap: 10px;
-        }
+    .add-project-btn {
+        white-space: nowrap;
+    }
 
-        .add-project-btn {
-            white-space: nowrap;
-        }
+    /* 🔥 ICON FIELD STYLE */
+    .field-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        /* 🔥 ICON FIELD STYLE */
-        .field-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .field-icon {
+        color: #0d6efd;
+        width: 20px;
+    }
+</style>
 
-        .field-icon {
-            color: #0d6efd;
-            width: 20px;
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- 🔵 TOP BAR -->
-
-<!-- right side icons -->    
-<div class="top-bar d-flex justify-content-between align-items-center px-3">
-
-    <!-- LEFT SIDE -->
+</head><body><!-- 🔵 TOP BAR --><div class="top-bar d-flex justify-content-between align-items-center px-3">
     <div>
         bugtrackingsystem@example.com | +91 8511374278
-    </div>
-
-    <!-- RIGHT SIDE ICONS -->
-    <div class="d-flex gap-3">
-        <i class="fab fa-facebook-f"></i>
-        <i class="fab fa-instagram"></i>
-        <i class="fab fa-whatsapp"></i>
-        <i class="fab fa-twitter"></i>
-    </div>
-
-
+    </div><div class="d-flex gap-3">
+    <i class="fab fa-facebook-f"></i>
+    <i class="fab fa-instagram"></i>
+    <i class="fab fa-whatsapp"></i>
+    <i class="fab fa-twitter"></i>
 </div>
-<!-- 🧭 NAVBAR -->
-<nav class="navbar navbar-expand-lg shadow-sm">
+
+</div><!-- 🧭 NAVBAR --><nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
             <img src="{% static 'images/logo.png' %}"  width="30" height="30">
             Bug Tracking System
         </a>
-        
-            
     </div>
-</nav>
-
-
-<div class="container mt-3 d-flex justify-content-end">
+</nav><div class="container mt-3 d-flex justify-content-end">
     <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
         ← Back
     </a>
+</div><!-- 🔥 MAIN CONTAINER --><div class="container mt-4">{% if not projects %}
+<div class="alert alert-warning text-center">
+    No project found. Please add a project first.
+</div>
+{% endif %}
+
+<div class="text-center mb-4">
+    <div class="title-small">ADD NEW BUG</div>
+    <h2 class="title-main">🐞 Add New Bug</h2>
 </div>
 
+<div class="form-card">
 
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
 
-<!-- 🔥 MAIN CONTAINER -->
-<div class="container mt-4">
+        <div class="row">
 
-    {% if not projects %}
-    <div class="alert alert-warning text-center">
-        No project found. Please add a project first.
-    </div>
-    {% endif %}
+            <!-- LEFT -->
+            <div class="col-md-6">
 
-    <div class="text-center mb-4">
-        <div class="title-small">ADD NEW BUG</div>
-        <h2 class="title-main">🐞 Add New Bug</h2>
-    </div>
-
-    <div class="form-card">
-
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <div class="row">
-
-                <!-- LEFT -->
-                <div class="col-md-6">
-
-                    <div class="mb-3">
-                        <label class="form-label">Bug Name</label>
-                        <div class="field-box">
-                            <i class="fa fa-bug field-icon"></i>
-                            <input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
-                        </div>
+                <div class="mb-3">
+                    <label class="form-label">Bug Name</label>
+                    <div class="field-box">
+                        <i class="fa fa-bug field-icon"></i>
+                        <input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Project</label>
+                <div class="mb-3">
+                    <label class="form-label">Project</label>
 
-                        <div class="project-row">
-                            <div class="field-box w-100">
-                                <i class="fa fa-folder field-icon"></i>
-                                <select name="project" class="form-control" required>
-                                    <option value="">Select Project</option>
-                                    {% for project in projects %}
-                                        <option value="{{ project.id }}">{{ project.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            {% if request.user.role == 'admin' or request.user.role == 'manager' %}
-                            <a href="/add-project/" class="btn btn-success add-project-btn">
-                                + Add
-                            </a>
-                            {% endif %}
+                    <div class="project-row">
+                        <div class="field-box w-100">
+                            <i class="fa fa-folder field-icon"></i>
+                            <select name="project" class="form-control" required>
+                                <option value="">Select Project</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         {% if request.user.role == 'admin' or request.user.role == 'manager' %}
-                        <small class="text-muted">
-                            Can't find project? Click "Add" to create one.
-                        </small>
+                        <a href="/add-project/" class="btn btn-success add-project-btn">
+                            + Add
+                        </a>
                         {% endif %}
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Tester Code</label>
-                        <div class="field-box">
-                            <i class="fa fa-code field-icon"></i>
-                            <input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Bug Date</label>
-                        <div class="field-box">
-                            <i class="fa fa-calendar field-icon"></i>
-                            <input type="date" name="bug_date" class="form-control">
-                        </div>
-                    </div>
-
+                    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+                    <small class="text-muted">
+                        Can't find project? Click "Add" to create one.
+                    </small>
+                    {% endif %}
                 </div>
 
-                <!-- RIGHT -->
-                <div class="col-md-6">
-
-                    <div class="mb-3">
-                        <label class="form-label">Bug Level</label>
-                        <div class="field-box">
-                            <i class="fa fa-layer-group field-icon"></i>
-                            <select name="bug_level" class="form-control">
-                                <option value="">Select Level</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
+                <!-- 🔥 NEW FIELD ADDED HERE -->
+                <div class="mb-3">
+                    <label class="form-label">Assign To (Developer)</label>
+                    <div class="field-box">
+                        <i class="fa fa-user-cog field-icon"></i>
+                        <select name="assigned_to" class="form-control" required>
+                            <option value="">Select Developer</option>
+                            {% for dev in developers %}
+                                <option value="{{ dev.id }}">{{ dev.username }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Bug Priority</label>
-                        <div class="field-box">
-                            <i class="fa fa-flag field-icon"></i>
-                            <select name="bug_priority" class="form-control">
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
+                <div class="mb-3">
+                    <label class="form-label">Tester Code</label>
+                    <div class="field-box">
+                        <i class="fa fa-code field-icon"></i>
+                        <input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Bug Type</label>
-                        <div class="field-box">
-                            <i class="fa fa-sitemap field-icon"></i>
-                            <select name="bug_type" class="form-control">
-                                <option value="">Select Type</option>
-                                <option value="ui">UI</option>
-                                <option value="backend">Backend</option>
-                                <option value="performance">Performance</option>
-                            </select>
-                        </div>
+                <div class="mb-3">
+                    <label class="form-label">Bug Date</label>
+                    <div class="field-box">
+                        <i class="fa fa-calendar field-icon"></i>
+                        <input type="date" name="bug_date" class="form-control">
                     </div>
-
                 </div>
 
             </div>
 
-            <!-- DESCRIPTION -->
-            <div class="mb-3 mt-2">
-                <label class="form-label">Description</label>
-                <div class="field-box">
-                    <i class="fa fa-align-left field-icon"></i>
-                    <textarea name="description" class="form-control" rows="3"></textarea>
+            <!-- RIGHT -->
+            <div class="col-md-6">
+
+                <div class="mb-3">
+                    <label class="form-label">Bug Level</label>
+                    <div class="field-box">
+                        <i class="fa fa-layer-group field-icon"></i>
+                        <select name="bug_level" class="form-control">
+                            <option value="">Select Level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <!-- IMAGE -->
-            <div class="mb-3 mt-2">
-                <label class="form-label">Upload Screenshot</label>
-                <div class="field-box">
-                    <i class="fa fa-image field-icon"></i>
-                    <input type="file" name="image" class="form-control">
+                <div class="mb-3">
+                    <label class="form-label">Bug Priority</label>
+                    <div class="field-box">
+                        <i class="fa fa-flag field-icon"></i>
+                        <select name="bug_priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Bug Type</label>
+                    <div class="field-box">
+                        <i class="fa fa-sitemap field-icon"></i>
+                        <select name="bug_type" class="form-control">
+                            <option value="">Select Type</option>
+                            <option value="ui">UI</option>
+                            <option value="backend">Backend</option>
+                            <option value="performance">Performance</option>
+                        </select>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="text-center mt-3">
-                <button type="submit" class="btn btn-primary px-5">Submit</button>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="mb-3 mt-2">
+            <label class="form-label">Description</label>
+            <div class="field-box">
+                <i class="fa fa-align-left field-icon"></i>
+                <textarea name="description" class="form-control" rows="3"></textarea>
             </div>
+        </div>
 
-        </form>
+        <!-- IMAGE -->
+        <div class="mb-3 mt-2">
+            <label class="form-label">Upload Screenshot</label>
+            <div class="field-box">
+                <i class="fa fa-image field-icon"></i>
+                <input type="file" name="image" class="form-control">
+            </div>
+        </div>
 
-    </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary px-5">Submit</button>
+        </div>
+
+    </form>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
+</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script></body>
 </html>

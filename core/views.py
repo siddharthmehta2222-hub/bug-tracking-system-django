@@ -317,14 +317,13 @@ def close_bug(request, id):
 
 @login_required
 def add_bug(request):
-    from .models import Project
-    projects = Project.objects.all()   # ✅ GET ALL PROJECTS
+    projects = Project.objects.all()
+    developers = User.objects.filter(role='developer')
 
     if request.method == "POST":
         title = request.POST.get('bug_name') or "Untitled Bug"
 
         # ✅ FIX PROJECT (IMPORTANT)
-        from .models import Project
         project_id = request.POST.get('project')
 
         if project_id:
@@ -345,6 +344,16 @@ def add_bug(request):
         # 🔥 NEW: IMAGE SUPPORT
         image = request.FILES.get('image')
 
+        # ✅ NEW: MANUAL ASSIGN (IMPORTANT 🔥)
+        assigned_to_id = request.POST.get('assigned_to')
+
+        assigned_to = None
+        if assigned_to_id:
+            try:
+                assigned_to = User.objects.get(id=assigned_to_id, role='developer')
+            except User.DoesNotExist:
+                assigned_to = None
+
         # 🔥 CREATE BUG (UPGRADED)
         bug = Bug.objects.create(
             title=title,
@@ -357,29 +366,19 @@ def add_bug(request):
             bug_level=bug_level,
             bug_type=bug_type,
             bug_date=bug_date,
-            image=image
+            image=image,
+
+            # ✅ ASSIGNED DEVELOPER
+            assigned_to=assigned_to,
+
+            # ✅ REPORTER
+            reported_by=request.user
         )
-
-        # ✅ Reporter
-        bug.reported_by = request.user
-
-        # 🔥 AUTO ASSIGN DEVELOPER
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-
-        developer = User.objects.filter(role='developer').first()
-
-        if developer:
-            bug.assigned_to = developer
-        else:
-            bug.assigned_to = request.user
-
-        bug.save()   # ✅ FIXED INDENT
 
         # 🔔 notification for creator
         Notification.objects.create(
             user=request.user,
-            message="Bug added successfully"
+            message=f"Bug '{title}' assigned successfully"
         )
 
         messages.success(request, "Bug Added Successfully")
@@ -387,7 +386,8 @@ def add_bug(request):
 
     # 🔥🔥🔥 FINAL FIX (DO NOT REMOVE)
     return render(request, 'core/add_bug.html', {
-        'projects': projects
+        'projects': projects,
+        'developers': developers
     })
 
 # =====================================
