@@ -1,8 +1,11 @@
 {% load static %}
 
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
-    <title>Add Bug</title><!-- Bootstrap -->
+    <title>Add Bug</title>
+
+<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <!-- 🔥 FONT AWESOME (FOR ICONS) -->
@@ -24,12 +27,10 @@
         background: white;
     }
 
-    /* ❌ HIDE MENU LIKE VIEW PROJECT */
     .navbar .nav {
         display: none !important;
     }
 
-    /* 🔥 SAME STYLE */
     .form-card {
         background: white;
         padding: 30px;
@@ -57,7 +58,6 @@
         white-space: nowrap;
     }
 
-    /* 🔥 ICON FIELD STYLE */
     .field-box {
         display: flex;
         align-items: center;
@@ -70,28 +70,41 @@
     }
 </style>
 
-</head><body><!-- 🔵 TOP BAR --><div class="top-bar d-flex justify-content-between align-items-center px-3">
+</head>
+
+<body>
+
+<div class="top-bar d-flex justify-content-between align-items-center px-3">
     <div>
         bugtrackingsystem@example.com | +91 8511374278
-    </div><div class="d-flex gap-3">
-    <i class="fab fa-facebook-f"></i>
-    <i class="fab fa-instagram"></i>
-    <i class="fab fa-whatsapp"></i>
-    <i class="fab fa-twitter"></i>
+    </div>
+
+    <div class="d-flex gap-3">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-instagram"></i>
+        <i class="fab fa-whatsapp"></i>
+        <i class="fab fa-twitter"></i>
+    </div>
 </div>
 
-</div><!-- 🧭 NAVBAR --><nav class="navbar navbar-expand-lg shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
-            <img src="{% static 'images/logo.png' %}"  width="30" height="30">
+            <img src="{% static 'images/logo.png' %}" width="30" height="30">
             Bug Tracking System
         </a>
     </div>
-</nav><div class="container mt-3 d-flex justify-content-end">
+</nav>
+
+<div class="container mt-3 d-flex justify-content-end">
     <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
         ← Back
     </a>
-</div><!-- 🔥 MAIN CONTAINER --><div class="container mt-4">{% if not projects %}
+</div>
+
+<div class="container mt-4">
+
+{% if not projects %}
 <div class="alert alert-warning text-center">
     No project found. Please add a project first.
 </div>
@@ -104,150 +117,174 @@
 
 <div class="form-card">
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
 
-        <div class="row">
+<div class="row">
 
-            <!-- LEFT -->
-            <div class="col-md-6">
+<!-- LEFT -->
+<div class="col-md-6">
 
-                <div class="mb-3">
-                    <label class="form-label">Bug Name</label>
-                    <div class="field-box">
-                        <i class="fa fa-bug field-icon"></i>
-                        <input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
-                    </div>
-                </div>
+<div class="mb-3">
+<label class="form-label">Bug Name</label>
+<div class="field-box">
+<i class="fa fa-bug field-icon"></i>
+<input type="text" name="bug_name" class="form-control" placeholder="Enter bug name" required>
+</div>
+</div>
 
-                <div class="mb-3">
-                    <label class="form-label">Project</label>
+<div class="mb-3">
+<label class="form-label">Project</label>
 
-                    <div class="project-row">
-                        <div class="field-box w-100">
-                            <i class="fa fa-folder field-icon"></i>
-                            <select name="project" class="form-control" required>
-                                <option value="">Select Project</option>
-                                {% for project in projects %}
-                                    <option value="{{ project.id }}">{{ project.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        {% if request.user.role == 'admin' or request.user.role == 'manager' %}
-                        <a href="/add-project/" class="btn btn-success add-project-btn">
-                            + Add
-                        </a>
-                        {% endif %}
-                    </div>
-                    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
-                    <small class="text-muted">
-                        Can't find project? Click "Add" to create one.
-                    </small>
-                    {% endif %}
-                </div>
+<div class="project-row">
+<div class="field-box w-100">
+<i class="fa fa-folder field-icon"></i>
+<select name="project" class="form-control" required>
+<option value="">Select Project</option>
+{% for project in projects %}
+<option value="{{ project.id }}">{{ project.name }}</option>
+{% endfor %}
+</select>
+</div>
 
-                <!-- 🔥 NEW FIELD ADDED HERE -->
-                <div class="mb-3">
-                    <label class="form-label">Assign To (Developer)</label>
-                    <div class="field-box">
-                        <i class="fa fa-user-cog field-icon"></i>
-                        <select name="assigned_to" class="form-control" required>
-                            <option value="">Select Developer</option>
-                            {% for dev in developers %}
-                                <option value="{{ dev.id }}">{{ dev.username }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
+{% if request.user.role == 'admin' or request.user.role == 'manager' %}
+<a href="/add-project/" class="btn btn-success add-project-btn">
++ Add
+</a>
+{% endif %}
+</div>
 
-                <div class="mb-3">
-                    <label class="form-label">Tester Code</label>
-                    <div class="field-box">
-                        <i class="fa fa-code field-icon"></i>
-                        <input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
-                    </div>
-                </div>
+{% if request.user.role == 'admin' or request.user.role == 'manager' %}
+<small class="text-muted">
+Can't find project? Click "Add" to create one.
+</small>
+{% endif %}
+</div>
 
-                <div class="mb-3">
-                    <label class="form-label">Bug Date</label>
-                    <div class="field-box">
-                        <i class="fa fa-calendar field-icon"></i>
-                        <input type="date" name="bug_date" class="form-control">
-                    </div>
-                </div>
+<!-- 🔥 UPDATED ASSIGN FIELD WITH IMAGE -->
+<div class="mb-3">
+<label class="form-label">Assign To (Developer)</label>
 
-            </div>
+<div class="input-group">
 
-            <!-- RIGHT -->
-            <div class="col-md-6">
+<span class="input-group-text bg-white border-end-0">
+<img id="devImage" src="{% static 'images/default-user.png' %}" 
+     style="width:30px;height:30px;border-radius:50%;">
+</span>
 
-                <div class="mb-3">
-                    <label class="form-label">Bug Level</label>
-                    <div class="field-box">
-                        <i class="fa fa-layer-group field-icon"></i>
-                        <select name="bug_level" class="form-control">
-                            <option value="">Select Level</option>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                    </div>
-                </div>
+<select name="assigned_to" id="developerSelect" class="form-control border-start-0" required>
+<option value="">Select Developer</option>
+{% for dev in developers %}
+<option value="{{ dev.id }}" data-img="{% if dev.image %}{{ dev.image.url }}{% else %}{% static 'images/default-user.png' %}{% endif %}">
+{{ dev.username }}
+</option>
+{% endfor %}
+</select>
 
-                <div class="mb-3">
-                    <label class="form-label">Bug Priority</label>
-                    <div class="field-box">
-                        <i class="fa fa-flag field-icon"></i>
-                        <select name="bug_priority" class="form-control">
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                    </div>
-                </div>
+</div>
+</div>
 
-                <div class="mb-3">
-                    <label class="form-label">Bug Type</label>
-                    <div class="field-box">
-                        <i class="fa fa-sitemap field-icon"></i>
-                        <select name="bug_type" class="form-control">
-                            <option value="">Select Type</option>
-                            <option value="ui">UI</option>
-                            <option value="backend">Backend</option>
-                            <option value="performance">Performance</option>
-                        </select>
-                    </div>
-                </div>
+<div class="mb-3">
+<label class="form-label">Tester Code</label>
+<div class="field-box">
+<i class="fa fa-code field-icon"></i>
+<input type="text" name="tester_code" class="form-control" placeholder="Enter tester code">
+</div>
+</div>
 
-            </div>
-
-        </div>
-
-        <!-- DESCRIPTION -->
-        <div class="mb-3 mt-2">
-            <label class="form-label">Description</label>
-            <div class="field-box">
-                <i class="fa fa-align-left field-icon"></i>
-                <textarea name="description" class="form-control" rows="3"></textarea>
-            </div>
-        </div>
-
-        <!-- IMAGE -->
-        <div class="mb-3 mt-2">
-            <label class="form-label">Upload Screenshot</label>
-            <div class="field-box">
-                <i class="fa fa-image field-icon"></i>
-                <input type="file" name="image" class="form-control">
-            </div>
-        </div>
-
-        <div class="text-center mt-3">
-            <button type="submit" class="btn btn-primary px-5">Submit</button>
-        </div>
-
-    </form>
+<div class="mb-3">
+<label class="form-label">Bug Date</label>
+<div class="field-box">
+<i class="fa fa-calendar field-icon"></i>
+<input type="date" name="bug_date" class="form-control">
+</div>
+</div>
 
 </div>
 
-</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script></body>
+<!-- RIGHT -->
+<div class="col-md-6">
+
+<div class="mb-3">
+<label class="form-label">Bug Level</label>
+<div class="field-box">
+<i class="fa fa-layer-group field-icon"></i>
+<select name="bug_level" class="form-control">
+<option value="">Select Level</option>
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+</select>
+</div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Bug Priority</label>
+<div class="field-box">
+<i class="fa fa-flag field-icon"></i>
+<select name="bug_priority" class="form-control">
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+</select>
+</div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Bug Type</label>
+<div class="field-box">
+<i class="fa fa-sitemap field-icon"></i>
+<select name="bug_type" class="form-control">
+<option value="">Select Type</option>
+<option value="ui">UI</option>
+<option value="backend">Backend</option>
+<option value="performance">Performance</option>
+</select>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="mb-3 mt-2">
+<label class="form-label">Description</label>
+<div class="field-box">
+<i class="fa fa-align-left field-icon"></i>
+<textarea name="description" class="form-control" rows="3"></textarea>
+</div>
+</div>
+
+<div class="mb-3 mt-2">
+<label class="form-label">Upload Screenshot</label>
+<div class="field-box">
+<i class="fa fa-image field-icon"></i>
+<input type="file" name="image" class="form-control">
+</div>
+</div>
+
+<div class="text-center mt-3">
+<button type="submit" class="btn btn-primary px-5">Submit</button>
+</div>
+
+</form>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 🔥 IMAGE CHANGE SCRIPT -->
+<script>
+document.getElementById("developerSelect").addEventListener("change", function() {
+    let selected = this.options[this.selectedIndex];
+    let img = selected.getAttribute("data-img");
+
+    if(img){
+        document.getElementById("devImage").src = img;
+    }
+});
+</script>
+
+</body>
 </html>
