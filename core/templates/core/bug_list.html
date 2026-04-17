@@ -67,6 +67,12 @@
 .btn-view{background:#17a2b8;color:white;}
 .btn-edit{background:#ffc107;color:black;}
 .btn-delete{background:#dc3545;color:white;}
+
+/* 🔥 NEW BUTTON COLORS (ADDED ONLY) */
+.btn-start{background:#f59e0b;color:white;}
+.btn-resolve{background:#16a34a;color:white;}
+.btn-verify{background:#0ea5e9;color:white;}
+.btn-close{background:#111827;color:white;}
 </style>
 
 <div class="container mt-4">
@@ -140,7 +146,6 @@
 
                 <td>{{ bug.project.name }}</td>
 
-                <!-- 🔥 UPDATED PRIORITY COLORS -->
                 <td>
                     {% if bug.priority == 'low' %}
                         <span class="badge priority-low">Low</span>
@@ -152,6 +157,7 @@
                 </td>
 
                 <td>
+                    {{ bug.status }}
                     {% if bug.status == 'open' %}
                         <span class="badge badge-open">Open</span>
                     {% elif bug.status == 'in_progress' %}
@@ -178,12 +184,40 @@
 
                 </td>
 
+                <!-- 🔥 UPDATED ACTION COLUMN (ONLY ADDED BELOW) -->
                 <td class="action-buttons">
+
                     <a href="/view-bug/{{ bug.id }}/" class="btn btn-view btn-sm">View</a>
-                    <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Edit</a>
-                    <a href="/delete-bug/{{ bug.id }}/"
-                       class="btn btn-delete btn-sm"
-                       onclick="return confirm('Are you sure?')">Delete</a>
+
+                    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+                        <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Edit</a>
+                        <a href="/delete-bug/{{ bug.id }}/"
+                           class="btn btn-delete btn-sm"
+                           onclick="return confirm('Are you sure?')">Delete</a>
+                    {% endif %}
+
+                    {% if request.user.role == 'developer' and bug.assigned_to == request.user %}
+                        <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Update</a>
+
+                        {% if bug.status == 'open' %}
+                            <a href="/start-bug/{{ bug.id }}/" class="btn btn-start btn-sm">Start</a>
+                        {% endif %}
+
+                        {% if bug.status == 'in_progress' %}
+                            <a href="/resolve-bug/{{ bug.id }}/" class="btn btn-resolve btn-sm">Resolve</a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if request.user.role == 'tester' and bug.status == 'resolved' %}
+                        <a href="/verify-bug/{{ bug.id }}/" class="btn btn-verify btn-sm">Verify</a>
+                    {% endif %}
+
+                    {% if request.user.role == 'admin' or request.user.role == 'manager' %}
+                        {% if bug.status == 'verified' %}
+                            <a href="/close-bug/{{ bug.id }}/" class="btn btn-close btn-sm">Close</a>
+                        {% endif %}
+                    {% endif %}
+
                 </td>
 
             </tr>

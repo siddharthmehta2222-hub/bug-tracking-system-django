@@ -343,7 +343,7 @@
             {% if bug.status == 'open' %}
             <a href="{% url 'change_status' bug.id 'in_progress' %}" class="btn btn-info btn-sm">Start</a>
             {% elif bug.status == 'in_progress' %}
-            <a href="{% url 'change_status' bug.id 'closed' %}" class="btn btn-success btn-sm">Mark Done</a>
+            <a href="/change-status/{{ bug.id }}/resolved/" class="btn btn-success btn-sm">Mark Resolved</a>
             {% endif %}
 
         {% endif %}
@@ -351,22 +351,34 @@
     {% endif %}
 
 
-    <!-- TESTER -->
-    {% if request.user.role == 'tester' %}
+   <!-- TESTER -->
+{% if request.user.role == 'tester' %}
 
     {% if bug.reported_by == request.user %}
 
-        {% if bug.status == 'closed' %}
+        {% if bug.status == 'resolved' %}
+            <a href="{% url 'change_status' bug.id 'closed' %}" 
+               class="btn btn-info btn-sm">Verify</a>
+
+        {% elif bug.status == 'closed' %}
             <span class="badge bg-success">Verified</span>
+
+        {% elif bug.status == 'in_progress' %}
+            <span class="badge bg-warning text-dark">In Progress</span>
+
+        {% elif bug.status == 'open' %}
+            <span class="badge bg-secondary">Open</span>
+
         {% else %}
             <span class="badge bg-warning text-dark">Pending</span>
+
         {% endif %}
 
     {% else %}
         <span class="badge bg-secondary">View Only</span>
     {% endif %}
 
-    {% endif %}
+{% endif %}
 
                 </td>
 

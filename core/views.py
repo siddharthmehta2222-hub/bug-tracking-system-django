@@ -257,8 +257,32 @@ def dashboardView(request):
 @login_required
 def change_status(request, id, status):
     bug = get_object_or_404(Bug, id=id)
+    user = request.user
+
+    # 🔒 DEVELOPER RULES
+    if user.role == 'developer':
+        if bug.assigned_to != user:
+            return HttpResponseForbidden("Not your bug ❌")
+
+        if status not in ['in_progress', 'resolved']:
+            return HttpResponseForbidden("Developers cannot close bugs ❌")
+
+    # 🧪 TESTER RULES
+    elif user.role == 'tester':
+        if status != 'verified':
+            return HttpResponseForbidden("Tester can only verify  ❌")
+
+        if bug.status != 'resolved':
+            return HttpResponseForbidden("Bug must be resolved first ❌")
+
+    # 👨‍💼 ADMIN / MANAGER (FULL ACCESS)
+    elif user.role not in ['admin', 'manager']:
+        return HttpResponseForbidden("Not allowed ❌")
+
     bug.status = status
     bug.save()
+
+    messages.success(request, f"Bug moved to {status.upper()} ✅")
     return redirect('dashboard')
 
 
@@ -304,7 +328,7 @@ def close_bug(request, id):
     if request.user.role not in ['manager', 'admin']:
         return HttpResponseForbidden("You are not allowed ❌")
 
-    if bug.status != 'closed':
+    if bug.status == 'verified':
         bug.status = "closed"
         bug.save()
 
@@ -574,20 +598,46 @@ def bug_list(request):
     query = request.GET.get('q')
     status = request.GET.get('status')
 
-    bugs = Bug.objects.all().order_by('-id')
+    user = request.user   # 🔥 IMPORTANT
 
+    # ==================================================
+    # 🔥 ROLE BASED BUG ACCESS (FIXED)
+    # ==================================================
+    if user.role in ['admin', 'manager']:
+        bugs = Bug.objects.all()
+
+    elif user.role == 'developer':
+        bugs = Bug.objects.filter(assigned_to=user)
+
+    elif user.role == 'tester':
+        bugs = Bug.objects.filter(reported_by=user)
+
+    else:
+        bugs = Bug.objects.none()
+
+    # ==================================================
+    # 🔽 ORDERING
+    # ==================================================
+    bugs = bugs.order_by('-id')
+
+    # ==================================================
     # 🔍 SEARCH
+    # ==================================================
     if query:
         bugs = bugs.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query)
         )
 
-    # 🎯 FILTER
+    # ==================================================
+    # 🎯 STATUS FILTER
+    # ==================================================
     if status:
         bugs = bugs.filter(status=status)
 
-    # 📄 PAGINATION (FIXED ✅)
+    # ==================================================
+    # 📄 PAGINATION
+    # ==================================================
     paginator = Paginator(bugs, 5)   # 5 per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -598,7 +648,6 @@ def bug_list(request):
         'query': query,
         'status': status
     })
-
 # ==================================================
 #view bug
 # ==================================================
@@ -624,7 +673,25 @@ def edit_bug(request, id):
     if request.method == 'POST':
         bug.title = request.POST.get('title')
         bug.priority = request.POST.get('priority')
-        bug.status = request.POST.get('status')
+
+        # 🔥 NEW: ROLE-BASED STATUS CONTROL (ADDED ONLY)
+        new_status = request.POST.get('status')
+        user = request.user
+
+        if user.role == 'developer':
+            # Developer can only move to In Progress or Resolved
+            if new_status in ['in_progress', 'resolved']:
+                if bug.assigned_to == user:
+                    bug.status = new_status
+
+        elif user.role == 'tester':
+            # Tester can only verify (close) if already resolved
+            if new_status == 'closed' and bug.status == 'resolved':
+                bug.status = new_status
+
+        elif user.role in ['admin', 'manager']:
+            # Full control
+            bug.status = new_status
 
         # 🔥 EXISTING FIELDS (KEEPED)
         bug.project_id = request.POST.get('project')
@@ -935,3 +1002,39 @@ def about(request):
 def contact(request):
     return render(request, 'core/contact.html')
 
+# ==================================================
+# RESOLVED BUGS
+# ==================================================
+@login_required
+def resolve_bug(request, id):
+    bug = get_object_or_404(Bug, id=id)
+
+    if request.user.role != 'developer':
+        return HttpResponseForbidden("Only developer allowed ❌")
+
+    if bug.assigned_to != request.user:
+        return HttpResponseForbidden("Not your bug ❌")
+
+    if bug.status == 'in_progress':
+        bug.status = 'resolved'
+        bug.save()
+
+    messages.success(request, "Bug marked as Resolved ✅")
+    return redirect('dashboard')
+
+# ==================================================
+# VERIFY BUG (TESTER ONLY)
+# ==================================================
+@login_required
+def verify_bug(request, id):
+    bug = get_object_or_404(Bug, id=id)
+
+    if request.user.role != 'tester':
+        return HttpResponseForbidden("Only tester allowed ❌")
+
+    if bug.status == 'resolved':
+        bug.status = 'verified'
+        bug.save()
+
+    messages.success(request, "Bug verified successfully ✅")
+    return redirect('dashboard')

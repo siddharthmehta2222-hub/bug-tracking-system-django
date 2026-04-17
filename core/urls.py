@@ -47,7 +47,9 @@ urlpatterns = [
     path('my-profile/', views.my_profile, name='my_profile'),
     path('notifications/', views.notifications_view, name='notifications'),
     path('mark-read/<int:id>/', views.mark_read, name='mark_read'),
-
+    path('resolve/<int:id>/', views.resolve_bug, name='resolve_bug'),
+    path('verify/<int:id>/', views.verify_bug, name='verify_bug'),
+    path('change-status/<int:id>/<str:status>/', views.change_status, name='change_status'),
 
     # ===============================
     # EXPORT FEATURES

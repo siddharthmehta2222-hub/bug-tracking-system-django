@@ -98,6 +98,7 @@ class Bug(models.Model):
         ('open', 'Open'),
         ('in_progress', 'In Progress'),
         ('resolved', 'Resolved'),
+        ('verified', 'Verified'),
         ('closed', 'Closed'),
     )
 
