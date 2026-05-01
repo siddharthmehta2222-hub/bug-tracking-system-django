@@ -169,7 +169,7 @@
 
                 <td class="d-flex align-items-center gap-2">
 
-                    <a href="/view-user/{{ bug.assigned_to.id }}/">
+                    <a href="{% url 'view_user' bug.assigned_to.id %}">
                         {% if bug.assigned_to and bug.assigned_to.image %}
                             <img src="{{ bug.assigned_to.image.url }}" class="user-img">
                         {% else %}
@@ -191,7 +191,7 @@
 
                     {% if request.user.role == 'admin' or request.user.role == 'manager' %}
                         <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Edit</a>
-                        <a href="/delete-bug/{{ bug.id }}/"
+                        <a href="{% url 'delete_bug' bug.id %}"
                            class="btn btn-delete btn-sm"
                            onclick="return confirm('Are you sure?')">Delete</a>
                     {% endif %}
@@ -200,21 +200,21 @@
                         <a href="/edit-bug/{{ bug.id }}/" class="btn btn-edit btn-sm">Update</a>
 
                         {% if bug.status == 'open' %}
-                            <a href="/start-bug/{{ bug.id }}/" class="btn btn-start btn-sm">Start</a>
+                            <a href="{% url 'start_bug' bug.id %}" class="btn btn-start btn-sm">Start</a>
                         {% endif %}
 
                         {% if bug.status == 'in_progress' %}
-                            <a href="/resolve-bug/{{ bug.id }}/" class="btn btn-resolve btn-sm">Resolve</a>
+                            <a href="{% url 'resolve_bug' bug.id %}" class="btn btn-resolve btn-sm">Resolve</a>
                         {% endif %}
                     {% endif %}
 
                     {% if request.user.role == 'tester' and bug.status == 'resolved' %}
-                        <a href="/verify-bug/{{ bug.id }}/" class="btn btn-verify btn-sm">Verify</a>
+                        <a href="{% url 'verify_bug' bug.id %}" class="btn btn-verify btn-sm">Verify</a>
                     {% endif %}
 
                     {% if request.user.role == 'admin' or request.user.role == 'manager' %}
                         {% if bug.status == 'verified' %}
-                            <a href="/close-bug/{{ bug.id }}/" class="btn btn-close btn-sm">Close</a>
+                            <a href="{% url 'close_bug' bug.id %}" class="btn btn-close btn-sm">Close</a>
                         {% endif %}
                     {% endif %}
 
