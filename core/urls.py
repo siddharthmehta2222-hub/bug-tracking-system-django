@@ -26,6 +26,7 @@ urlpatterns = [
     path('bug-list/', views.bug_list, name='bug_list'),
     path('start/<int:id>/', views.start_bug, name='start_bug'),
     path('close/<int:id>/', views.close_bug, name='close_bug'),
+    path('reopen/<int:id>/', views.reopen_bug, name='reopen_bug'),
 
     # ===============================
     # USER MANAGEMENT
@@ -50,6 +51,7 @@ urlpatterns = [
     path('resolve/<int:id>/', views.resolve_bug, name='resolve_bug'),
     path('verify/<int:id>/', views.verify_bug, name='verify_bug'),
     path('change-status/<int:id>/<str:status>/', views.change_status, name='change_status'),
+    path('reopen/<int:id>/', views.reopen_bug, name='reopen_bug'),
 
     # ===============================
     # EXPORT FEATURES

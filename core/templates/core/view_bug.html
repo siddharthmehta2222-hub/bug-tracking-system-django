@@ -87,6 +87,25 @@
 .badge-open {color:#1d4ed8;}
 .badge-progress {color:#b45309;}
 .badge-closed {color:#15803d;}
+
+/* 🔥 COMMENT BOX */
+.comment-box {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 30px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+}
+
+/* 🔥 COMMENT CARD */
+.comment-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f9fafb;
+}
 </style>
 
 <div class="view-container">
@@ -160,6 +179,10 @@
                         <span class="badge-open">Open</span>
                     {% elif bug.status == 'in_progress' %}
                         <span class="badge-progress">In Progress</span>
+                    {% elif bug.status == 'resolved' %}
+                        <span class="badge-progress">Resolved</span>
+                    {% elif bug.status == 'verified' %}
+                        <span class="badge-progress">Verified</span>
                     {% else %}
                         <span class="badge-closed">Closed</span>
                     {% endif %}
@@ -194,6 +217,86 @@
             <i class="fa fa-align-left field-icon"></i>
             {{ bug.description }}
         </p>
+
+    </div>
+
+    <!-- 🔥 COMMENT SECTION -->
+    <div class="comment-box">
+
+        <h4 class="mb-4">Bug Comments 💬</h4>
+
+        <!-- COMMENT FORM -->
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <textarea
+                    name="message"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Write your comment..."
+                    required></textarea>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Send Comment
+            </button>
+
+        </form>
+
+        <hr class="my-4">
+
+        <!-- ALL COMMENTS -->
+        <h5 class="mb-3">All Comments</h5>
+
+        {% for comment in comments %}
+
+        <div class="comment-card">
+
+            <div class="d-flex align-items-center gap-3">
+
+                {% if comment.user.image %}
+                    <img src="{{ comment.user.image.url }}"
+                         width="50"
+                         height="50"
+                         style="border-radius:50%; object-fit:cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/50"
+                         width="50"
+                         height="50"
+                         style="border-radius:50%;">
+                {% endif %}
+
+                <div>
+
+                    <h6 class="mb-0">
+                        {{ comment.user.username }}
+                    </h6>
+
+                    <small class="text-muted">
+                        {{ comment.created_at }}
+                    </small>
+
+                </div>
+
+            </div>
+
+            <p class="mt-3 mb-0">
+                {{ comment.message }}
+            </p>
+
+        </div>
+
+        {% empty %}
+
+        <p class="text-muted">
+            No comments yet.
+        </p>
+
+        {% endfor %}
 
     </div>
 

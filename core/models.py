@@ -99,6 +99,7 @@ class Bug(models.Model):
         ('in_progress', 'In Progress'),
         ('resolved', 'Resolved'),
         ('verified', 'Verified'),
+        ('reopened', 'Reopened'),
         ('closed', 'Closed'),
     )
 
@@ -158,3 +159,16 @@ class Notification(models.Model):
 
     def _str_(self):
         return self.message
+    
+class BugComment(models.Model):
+
+    bug = models.ForeignKey(Bug, on_delete=models.CASCADE)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    message = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"{self.user.username} - {self.bug.title}"

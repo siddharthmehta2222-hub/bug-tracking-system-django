@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden, HttpResponse
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password
-from .models import Notification, Project, Bug
+from .models import Notification, Project, Bug , BugComment
 from django.core.paginator import Paginator
 from .models import Bug
 from .forms import BugForm, UserSignupForm
@@ -335,6 +335,24 @@ def close_bug(request, id):
     messages.success(request, "Bug closed successfully ✅")
     return redirect('dashboard')
 
+@login_required
+def reopen_bug(request, id):
+
+    bug = get_object_or_404(Bug, id=id)
+
+    # 🔥 ONLY ADMIN / TESTER / DEVELOPER
+    if request.user.role not in ['admin', 'manager']:
+        return HttpResponseForbidden("You are not allowed ❌")
+
+    # 🔥 ONLY CLOSED OR VERIFIED BUG CAN REOPEN
+    if bug.status in ['closed', 'verified']:
+
+        bug.status = 'reopened'
+        bug.save()
+
+        messages.success(request, "Bug reopened successfully ✅")
+
+    return redirect('dashboard')
 # ==================================================
 # ADD BUG
 # ==================================================
@@ -653,9 +671,30 @@ def bug_list(request):
 # ==================================================
 @login_required
 def view_bug(request, id):
-    bug = get_object_or_404(Bug, id=id)
-    return render(request, 'core/view_bug.html', {'bug': bug})
 
+    bug = get_object_or_404(Bug, id=id)
+
+    # 🔥 SAVE COMMENT
+    if request.method == "POST":
+
+        message = request.POST.get('message')
+
+        if message:
+            BugComment.objects.create(
+                bug=bug,
+                user=request.user,
+                message=message
+            )
+
+    # 🔥 GET COMMENTS
+    comments = BugComment.objects.filter(
+        bug=bug
+    ).order_by('-created_at')
+
+    return render(request, 'core/view_bug.html', {
+        'bug': bug,
+        'comments': comments
+    })
 # ==================================================
 # edit bug
 # ==================================================

@@ -217,6 +217,18 @@
                             <a href="{% url 'close_bug' bug.id %}" class="btn btn-close btn-sm">Close</a>
                         {% endif %}
                     {% endif %}
+                    {% if request.user.role == 'tester' or request.user.role == 'admin' or request.user.role == 'manager' %}
+
+    {% if bug.status == 'closed' or bug.status == 'verified' %}
+
+        <a href="{% url 'reopen_bug' bug.id %}" 
+           class="btn btn-warning btn-sm">
+           Reopen
+        </a>
+
+    {% endif %}
+
+{% endif %}
 
                 </td>
 
