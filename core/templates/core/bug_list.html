@@ -57,12 +57,19 @@
 }
 
 /* BUTTONS */
-.action-buttons .btn{
-    padding:5px 12px;
-    font-size:12px;
-    margin-right:5px;
-    border-radius:6px;
+.action-buttons{
+    display:flex;
+    align-items:center;
+    gap:5px;
 }
+
+.action-buttons .btn{
+    padding:5px 10px;
+    font-size:11px;
+    border-radius:6px;
+    white-space:nowrap;
+}
+
 
 .btn-view{background:#17a2b8;color:white;}
 .btn-edit{background:#ffc107;color:black;}
@@ -167,7 +174,7 @@
                     {% endif %}
                 </td>
 
-                <td class="d-flex align-items-center gap-2">
+                <td >
 
                     <a href="{% url 'view_user' bug.assigned_to.id %}">
                         {% if bug.assigned_to and bug.assigned_to.image %}
@@ -214,7 +221,7 @@
 
                     {% if request.user.role == 'admin' or request.user.role == 'manager' %}
                         {% if bug.status == 'verified' %}
-                            <a href="{% url 'close_bug' bug.id %}" class="btn btn-close btn-sm">Close</a>
+                            <a href="{% url 'close_bug' bug.id %}" class="btn btn-success btn-sm">Close</a>
                         {% endif %}
                     {% endif %}
                     {% if request.user.role == 'tester' or request.user.role == 'admin' or request.user.role == 'manager' %}
